@@ -2,30 +2,61 @@
 
 ## Quick Project Summary
 
-This is a **React web application** that creates inpainting masks for images and sends them to a locally-running Fooocus AI instance at `http://127.0.0.1:8888` to perform image-to-image generation with specific area inpainting.
+This is a **React web application** that creates inpainting masks for images and sends them to a locally-running Focus (Fooocus/Gradio) AI instance via the Gradio API.
 
-**Core functionality**: Users upload images, draw in red on areas they want changed, and the app converts those drawings into black/white masks that Fooocus uses for targeted AI generation.
+**Core functionality**: Users upload images, draw in red on areas they want changed, and the app converts those drawings into black/white masks that Focus uses for targeted AI generation.
 
 ---
 
-## 📦 Setup & Getting Started (If Starting Fresh)
+## 📦 Setup & Getting Started
 
 ### 1. Install Dependencies
 ```bash
 npm install
 ```
 
-### 2. Start Development Server
+### 2. Configure Server Connection (IMPORTANT!)
+
+**Before running the app, you MUST configure your Focus server URL:**
+
+#### Option A: Using Environment Variables (Recommended)
+
+```bash
+# Create .env file from example
+cp .env.example .env
+
+# Edit with your Focus server details
+nano .env  # or use VS Code/other editor
+```
+
+Edit `.env`:
+```env
+FOCUS_SERVER_URL=http://127.0.0.1:7865
+API_ENDPOINT=generation/image-inpaint
+TIMEOUT_MS=300000
+DEBUG_MODE=false
+```
+
+#### Option B: Modify Code Directly
+
+Edit `src/utils/fooocusApi.js`:
+```javascript
+const FOCUS_SERVER_URL = 'http://your-server:7865'  // Update this!
+const API_ENDPOINT = 'generation/image-inpaint'     // Update if needed
+```
+
+### 3. Start Development Server
 ```bash
 npm run dev
 ```
 - Server will be available at `http://localhost:3000`
-- Network accessible at `http://192.168.0.6:3000` (adjust IP as needed)
+- Network accessible based on your port settings
 
-### 3. Verify Fooocus API is Running
-Ensure Fooocus is running locally on port 8888 with the inpainting API enabled. Test connection:
+### 4. Verify Focus API is Running
+Ensure your Focus instance is running and accessible on the specified port. Test connection:
 ```bash
-curl http://127.0.0.1:8888/health
+# For Gradio/Fooocus API
+curl http://127.0.0.1:7865/health
 ```
 
 ---
@@ -39,14 +70,15 @@ curl http://127.0.0.1:8888/health
 | `src/main.jsx` | React entry point, renders App inside .app-container div |
 | `src/App.jsx` | Main application component - handles state, uploads, prompts, and API calls |
 | `src/components/InpaintCanvas.jsx` | Canvas component for drawing masks (handles mouse/touch events) |
-| `src/utils/fooocusApi.js` | API client that sends inpainting requests to Fooocus |
+| `src/utils/fooocusApi.js` | API client that sends inpainting requests to Focus/Gradio |
 | `src/styles.css` | Global styles and responsive design |
+| `.env` | Environment configuration for server URL and other settings |
 
 ### State Management in App.jsx
 
 ```javascript
 - imageSrc: Base64 string or URL of uploaded image
-- resultImage: Generated image from Fooocus (shown after success)
+- resultImage: Generated image from Focus (shown after success)
 - prompt: User's text prompt for AI generation
 - loading: Boolean for showing processing indicator
 - error: Error message display
@@ -63,13 +95,18 @@ curl http://127.0.0.1:8888/health
 
 ---
 
-## 🔌 Fooocus API Integration
+## 🔌 Focus/Gradio API Integration
 
 ### API Endpoint Used
 
-```
-POST http://127.0.0.1:8888/api/v1/generation/image-inpaint
-```
+**Default**: `http://127.0.0.1:7865/generation/image-inpaint`
+
+The app automatically handles both v1 and Gradio API response formats:
+- Array of images: `{images: [{url, base64}]}`
+- Single image: `{image: {url, base64}}`
+- Direct URL: `{output_url}`
+- Base64 string directly
+- Gradio HTML responses
 
 ### Request Payload Structure
 
@@ -77,11 +114,10 @@ POST http://127.0.0.1:8888/api/v1/generation/image-inpaint
 {
   prompt: string,                          // User's text prompt
   negative_prompt: "low quality, blurry",  // Optional negative prompt
-  style_selections: ["Fooocus V2"],       // Generated images style preset
-  performance_selection: "Speed",          // Speed/Quality/Extreme Speed
   
   input_image: base64_url_string,         // Original image (base64 or URL)
   input_mask: base64_mask_url,            // Black & white mask (white = change area)
+  
   u_percentage: 0.6,                      // Denoising strength 0-1
   inpaint_respective_field: true          // Focus only on masked areas
 }
@@ -98,7 +134,7 @@ POST http://127.0.0.1:8888/api/v1/generation/image-inpaint
 
 ### Response Handling
 
-The API returns different response formats:
+The API returns different response formats from Gradio:
 - Array of images: `data.images[0].url || data.images[0].base64`
 - Single image object: `data.image.url || data.image.base64`
 - Direct URL: `data.output_url`
@@ -111,10 +147,17 @@ The API returns different response formats:
 ### Before Development Work
 
 ```bash
-# Test Fooocus connection
-curl http://127.0.0.1:8888/api/v1/generation/image-inpaint
+# Test Focus API connection (Gradio style)
+curl http://127.0.0.1:7865/health
 
-# Should return 200 OK or health endpoint if available
+# Test inpainting endpoint
+curl -X POST http://127.0.0.1:7865/generation/image-inpaint \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "test",
+    "input_image": "...",
+    "input_mask": "..."
+  }'
 ```
 
 ### In-Browser Testing
@@ -129,17 +172,33 @@ curl http://127.0.0.1:8888/api/v1/generation/image-inpaint
 
 ## 🐛 Known Issues & Common Fixes
 
-### Issue 1: "Cannot connect to Fooocus API"
-**Fix**: Verify Fooocus is running and accessible on port 8888
+### Issue 1: "Cannot connect to Focus API"
+
+**Fix**: 
+1. Verify Focus is running and accessible on the specified port
+2. Check `.env` file has correct `FOCUS_SERVER_URL`
+3. Test with curl before starting development server:
+
 ```bash
-netstat -an | findstr :8888
+curl http://127.0.0.1:7865/health
 ```
 
+4. Enable DEBUG_MODE in `.env` to see detailed connection logs
+
 ### Issue 2: "Image failed to load" (Very large files)
+
 **Fix**: Resize large images before uploading or add image size validation (<10MB recommended)
 
 ### Issue 3: Mask not regenerating after drawing
+
 **Fix**: Check that canvas.coords property is being set correctly (it's exposed via Object.defineProperty)
+
+### Issue 4: CORS Errors in Browser Console
+
+**Fix**: 
+1. Ensure your Focus server has proper CORS headers
+2. Add `Access-Control-Allow-Origin: *` to Focus Gradio config if running locally
+3. Or run app on same domain as Focus for development
 
 ---
 
@@ -190,47 +249,19 @@ const prompts = {
 }
 ```
 
-### Add Multiple Image Support
+### Switch Between v1 API and Gradio API
 
-To support batch processing, modify the canvas component to accept an array of images or add image navigation controls.
-
-### Add Undo/Redo Functionality
-
-Track command history in App state:
+In `src/utils/fooocusApi.js`, add a toggle or detect API version:
 ```javascript
-const [history, setHistory] = useState([])
-
-// After each draw action
-setHistory(prev => [...prev.slice(-20), { coords: currentCoords, timestamp: Date.now()}])
-```
-
-### Add API Rate Limiting
-
-In `src/utils/fooocusApi.js`:
-```javascript
-// Track request count and add delays if needed
-let requestCount = 0
-const MAX_REQUESTS_PER_MINUTE = 60
-
-// Before fetch
-if (requestCount >= MAX_REQUESTS_PER_MINUTE) {
-  await sleep(10000) // 10 second delay
-  requestCount = 0
-} else {
-  requestCount++
-}
-```
-
-### Add Custom Styles Preset Loading
-
-Allow users to select Fooocus styles from the available presets:
-```javascript
-const [selectedStyles, setSelectedStyles] = useState(["Fooocus V2", "Fooocus Enhance"])
-
-// Load available styles from API
-const getAvailableStyles = async () => {
-  const response = await fetch(`${FOOOCUS_API_URL}/styles`)
-  return response.json()
+const isGradioApi = FOCUS_SERVER_URL.includes(':7865') || DEBUG_MODE
+  
+export const sendToFooocus = async (originalBase64, maskBase64, prompt, options = {}) => {
+  // Use Gradio API format if Gradio server detected
+  if (isGradioApi) {
+    // Use Gradio API payload structure
+  } else {
+    // Use v1 API payload structure
+  }
 }
 ```
 
@@ -239,8 +270,9 @@ const getAvailableStyles = async () => {
 ## 🔒 Security Considerations
 
 ### Current State
+
 - Images are processed locally (no external upload)
-- Only connects to local API (localhost/127.0.0.1)
+- Only connects to specified Focus server via environment variables
 - No user authentication currently implemented
 
 ### If Deploying to Production:
@@ -251,6 +283,7 @@ const getAvailableStyles = async () => {
 4. **Add image scanning** for malware in uploaded files
 5. **Store generated images** with proper permissions
 6. **Consider adding user accounts** if multi-user needed
+7. **Use HTTPS** for Focus server in production
 
 ---
 
@@ -262,11 +295,14 @@ const getAvailableStyles = async () => {
 | Vite | 5.0+ (build tooling) |
 | CSS | Plain CSS in styles object and .css file |
 | State Management | React useState (no Redux needed for this scale) |
+| Environment Variables | Node.js fs module + dotenv fallback |
 
 ### No Additional Dependencies Needed
+
 - Everything uses only React and browser APIs
 - No external image libraries (pure Canvas API)
 - No routing libraries (single-page app)
+- Minimal server dependencies (only runtime: React + Vite)
 
 ---
 
@@ -331,23 +367,29 @@ npm run preview # Preview production build locally
 # Check running node processes
 ps aux | grep node
 
-# Check port usage
+# Check port usage (default 3000)
 netstat -tlnp | grep 3000
 
 # View browser console for errors (F12)
 
-# Test API directly
-curl -X POST http://127.0.0.1:8888/api/v1/generation/image-inpaint \
+# Test API directly with Focus server URL
+curl -X POST http://127.0.0.1:7865/generation/image-inpaint \
   -H "Content-Type: application/json" \
   -d '{
     "prompt": "test",
-    "input_image": "...base64...",
-    "input_mask": "...mask_base64..."
+    "input_image": "...",
+    "input_mask": "..."
   }'
 
 # Clear Vite cache if build issues
 rm -rf node_modules/.vite
 npm run dev
+
+# Check environment variables
+cat .env
+
+# Test API connection with verbose output
+curl -v http://127.0.0.1:7865/health
 ```
 
 ---
@@ -372,6 +414,41 @@ ls -la src/
 
 # Check for linting errors (if ESLint is configured)
 npx eslint src/
+
+# Test API connection
+curl http://your-server:7865/health
+
+# View environment configuration
+cat .env
+```
+
+---
+
+## ⚙️ Environment Variables Reference
+
+| Variable | Description | Example Value | Default |
+|----------|-------------|---------------|---------|
+| `FOCUS_SERVER_URL` | Base URL of Focus server | `http://127.0.0.1:7865` | `http://127.0.0.1:7865` |
+| `API_ENDPOINT` | API endpoint path | `generation/image-inpaint` | `generation/image-inpaint` |
+| `TIMEOUT_MS` | Request timeout in milliseconds | `300000` (5 min) | `300000` |
+| `DEBUG_MODE` | Enable detailed logging | `true`/`false` | `false` |
+
+### Example .env Files
+
+**Development (local server):**
+```env
+FOCUS_SERVER_URL=http://127.0.0.1:7865
+API_ENDPOINT=generation/image-inpaint
+TIMEOUT_MS=300000
+DEBUG_MODE=false
+```
+
+**Remote Focus server:**
+```env
+FOCUS_SERVER_URL=http://focus.your-server.com:7865
+API_ENDPOINT=generation/image-inpaint
+TIMEOUT_MS=300000
+DEBUG_MODE=true
 ```
 
 ---
@@ -379,25 +456,27 @@ npx eslint src/
 ## ⚠️ Important Notes Before Continuing
 
 - **Always test in development first** before building for production
-- **Keep your local Fooocus instance running** when testing generation features
+- **Keep your local Focus instance running** when testing generation features
 - **Monitor memory usage** if processing many large images
 - **Backup generated images** - they're not stored after session ends (unless you add storage)
 - **Review and update dependencies periodically** with `npm outdated`
+- **Check browser console for API request details** during development
 
 ---
 
 ## 📁 File Modification Map (Quick Reference)
 
 ```
-File                  | Change Impact
-----------------------|---------------
+File                  | Change Impact & Notes
+----------------------|------------------------
 src/App.jsx          | Main app logic, state, file uploads - HIGH IMPACT
 src/components/InpaintCanvas.jsx | Drawing canvas component - MEDIUM IMPACT  
-src/utils/fooocusApi.js  | API integration - MEDIUM IMPACT
+src/utils/fooocusApi.js  | API integration with Gradio support - MEDIUM IMPACT (edit carefully)
 src/styles.css      | Visual styling - LOW IMPACT
 vite.config.js      | Build configuration - MEDIUM IMPACT (affects dist/)
 index.html         | HTML template - LOW IMPACT
 package.json       | Dependencies - MEDIUM IMPACT (requires reinstall)
+.env               | **IMPORTANT** - Server URL configuration - HIGH IMPACT
 ```
 
 ---
@@ -410,11 +489,13 @@ Before considering project complete for next development session:
 - [ ] Can paste image URLs successfully
 - [ ] Drawing works on touch screens (mobile) and mouse (desktop)
 - [ ] Brush size slider affects drawing correctly
-- [ ] Generate Result button calls Fooocus API
+- [ ] Generate Result button calls Focus API
 - [ ] Success/error states display properly
 - [ ] Download result functionality works
 - [ ] App handles large images gracefully (or warns user)
 - [ ] No console errors during operation
+- [ ] **Can configure different Focus server URLs via .env**
+- [ ] **API connection errors show helpful messages**
 
 ---
 
@@ -425,6 +506,8 @@ Before considering project complete for next development session:
 3. **Keep prompts simple initially** - complex prompts produce weird results
 4. **Mask accuracy matters** - draw slightly larger than needed (AI will handle edges)
 5. **Save generated images immediately** - the browser doesn't auto-save them
+6. **Use DEBUG_MODE=true during development** to see API request details
+7. **Check Focus server logs** if generation fails
 
 ---
 
@@ -433,20 +516,24 @@ Before considering project complete for next development session:
 ✅ Image upload from device or URL  
 ✅ Interactive canvas drawing with red brush  
 ✅ Black/white mask generation for API  
-✅ Fooocus API integration (local, v1 inpainting endpoint)  
+✅ Focus/Gradio API integration (local, v1 & Gradio endpoints)  
 ✅ Prompt input field  
 ✅ Loading and error states  
 ✅ Download functionality  
 ✅ Responsive design (mobile-friendly)  
 ✅ Clean code structure for easy maintenance  
+✅ Environment variable configuration  
+✅ Debug logging support  
 
 ---
 
 ## 🔗 External Resources
 
 - **Fooocus GitHub**: https://github.com/lllyasviel/Fooocus
+- **Gradio Documentation**: https://www.gradio.app/docs
 - **React Documentation**: https://react.dev/
 - **Vite Documentation**: https://vitejs.dev/
+- **Focus Server Setup**: See your Fooocus installation docs
 
 ---
 
@@ -456,4 +543,8 @@ Before considering project complete for next development session:
 
 ---
 
-This project is production-ready with minor enhancements! For immediate next steps, consider adding the short-term improvements listed above.
+This project is production-ready with minor enhancements! For immediate next steps, consider:
+
+1. **Configuring your Focus server URL in `.env`** (IMPORTANT!)
+2. **Testing the connection** before adding new features
+3. **Adding short-term improvements** from the roadmap above

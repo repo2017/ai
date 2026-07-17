@@ -4,6 +4,7 @@ const InpaintCanvas = ({ imageSrc, onExport, brushSize = 20 }) => {
   const canvasRef = useRef(null)
   const [coords, setCoords] = useState([]) // Store drawing paths
   const [isDrawing, setIsDrawing] = useState(false) // Track if user is currently drawing
+  const imgRef = useRef(null) // Store loaded image reference
   
   // Initialize canvas and draw the background image
   useEffect(() => {
@@ -22,6 +23,7 @@ const InpaintCanvas = ({ imageSrc, onExport, brushSize = 20 }) => {
       // Adjust canvas size to match image aspect ratio
       canvas.width = img.width
       canvas.height = img.height
+      imgRef.current = img // Store loaded image for redraw function
       ctx.drawImage(img, 0, 0)
       redraw()
     }
@@ -36,29 +38,18 @@ const InpaintCanvas = ({ imageSrc, onExport, brushSize = 20 }) => {
     const canvas = canvasRef.current
     const ctx = canvas?.getContext('2d')
     if (!ctx || !canvas) return
+    
+    // Check if image is loaded
+    if (!imgRef.current) {
+      console.log('Image not loaded yet, skipping redraw')
+      return
+    }
 
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-    // Draw base image
-    try {
-      const img = new Image()
-      img.src = imageSrc
-      
-      // If image is already loaded in this component context, draw it directly
-      if (imageSrc && typeof imageSrc === 'string') {
-        ctx.drawImage(img, 0, 0)
-      } else {
-        // Store the original image for redrawing
-        try {
-          const imgElement = new Image()
-          imgElement.onload = () => ctx.drawImage(imgElement, 0, 0)
-          imgElement.src = imageSrc
-        } catch(e) {}
-      }
-    } catch(e) {
-      console.log('Image not ready yet')
-    }
+    // Draw base image (use the cached reference)
+    ctx.drawImage(imgRef.current, 0, 0)
 
     // Draw the mask overlay (semi-transparent red so user sees where they draw)
     ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)'
@@ -274,7 +265,7 @@ const InpaintCanvas = ({ imageSrc, onExport, brushSize = 20 }) => {
   )
 }
 
-// Styles object (can be moved to CSS if needed)
+// Styles object (can be moved to CSS if needed) - Dark Mode Design
 const styles = {
   canvasContainer: {
     display: 'flex',
@@ -283,30 +274,34 @@ const styles = {
     gap: '15px'
   },
   canvasWrapper: {
-    border: '2px dashed #999',
+    border: '2px solid #4a5568',
     borderRadius: '8px',
     cursor: 'crosshair',
-    backgroundColor: '#fff',
-    overflow: 'hidden'
+    backgroundColor: '#1a202c',
+    overflow: 'hidden',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
   },
   canvas: {
     maxWidth: '100%',
     height: 'auto',
     display: 'block',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+    boxShadow: 'none'
   },
   controls: {
     display: 'flex',
     gap: '15px',
     alignItems: 'center',
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
+    backgroundColor: '#2d3748',
+    padding: '15px',
+    borderRadius: '8px'
   },
   label: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
     fontWeight: 'bold',
-    color: '#333'
+    color: '#e2e8f0'
   },
   slider: {
     cursor: 'pointer'
@@ -315,7 +310,7 @@ const styles = {
     padding: '10px 20px',
     fontSize: '14px',
     fontWeight: '600',
-    backgroundColor: '#f44336',
+    backgroundColor: '#e53e3e',
     color: 'white',
     border: 'none',
     borderRadius: '6px',
@@ -325,19 +320,19 @@ const styles = {
     padding: '12px 24px',
     fontSize: '16px',
     fontWeight: 'bold',
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#38a169',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+    boxShadow: '0 4px 6px rgba(0,0,0,0.2)'
   },
   instructions: {
     textAlign: 'center',
     padding: '10px 20px',
-    backgroundColor: '#fff3e0',
+    backgroundColor: '#2d3748',
     borderRadius: '8px',
-    color: '#e65100',
+    color: '#e2e8f0',
     fontSize: '14px'
   }
 }

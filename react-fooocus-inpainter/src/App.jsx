@@ -68,25 +68,35 @@ const App = () => {
     return maskCanvas.toDataURL('image/png')
   }
 
-  // Export button handler
-  const handleExport = () => {
-    if (!canvasRef.current) return
-    const canvas = canvasRef.current
-    const maskBase64 = generateMaskBase64(canvas, canvas.coords, canvas.brushSize)
-    const originalBase64 = imageSrc
+  // Export button handler - receives data directly from InpaintCanvas
+  const handleExport = (data) => {
+    const { original: originalBase64, mask: maskBase64 } = data || {}
+    const finalImageSrc = imageSrc || originalBase64
+    
+    if (!finalImageSrc || !maskBase64) {
+      console.error('Cannot export - missing image or mask')
+      setError('Please draw on the canvas first before generating')
+      return
+    }
 
     // Send to Fooocus API
     setLoading(true)
     setStatus('processing')
     setError(null)
 
-    sendToFooocus(originalBase64, maskBase64, prompt)
+    console.log('🎨 Sending to Fooocus API...')
+    console.log('Image source:', finalImageSrc.substring(0, 50) + '...')
+    console.log('Mask available:', !!maskBase64)
+    console.log('Prompt from input:', prompt)
+
+    sendToFooocus(prompt, maskBase64)
       .then((resultUrl) => {
+        console.log('✅ Success! Result URL:', resultUrl.substring(0, 50))
         setResultImage(resultUrl)
         setStatus('success')
       })
       .catch((err) => {
-        console.error(err)
+        console.error('❌ API Error:', err)
         setError(err.message || 'Failed to process image')
         setStatus('error')
       })
@@ -103,8 +113,6 @@ const App = () => {
     link.download = `fooocus-result-${Date.now()}.png`
     link.click()
   }
-
-  const canvasRef = useRef(null) // eslint-disable-line no-unused-vars
 
   return (
     <div style={styles.container}>
@@ -222,7 +230,7 @@ const App = () => {
   )
 }
 
-// Styles object
+// Styles object - Dark Mode Design
 const styles = {
   container: {
     maxWidth: '1200px',
@@ -231,7 +239,7 @@ const styles = {
   },
   title: {
     textAlign: 'center',
-    color: '#333',
+    color: '#e2e8f0',
     marginBottom: '30px'
   },
   uploadSection: {
@@ -249,9 +257,11 @@ const styles = {
   urlInput: {
     padding: '10px',
     width: '400px',
-    border: '2px solid #ddd',
+    border: '2px solid #4a5568',
     borderRadius: '8px',
-    fontSize: '14px'
+    fontSize: '14px',
+    backgroundColor: '#2d3748',
+    color: '#e2e8f0'
   },
   promptSection: {
     display: 'flex',
@@ -261,19 +271,21 @@ const styles = {
   },
   label: {
     fontWeight: 'bold',
-    color: '#555'
+    color: '#e2e8f0'
   },
   promptTextarea: {
     width: '400px',
     padding: '10px',
-    border: '2px solid #ddd',
+    border: '2px solid #4a5568',
     borderRadius: '8px',
     fontSize: '14px',
     resize: 'vertical',
-    minHeight: '60px'
+    minHeight: '60px',
+    backgroundColor: '#2d3748',
+    color: '#e2e8f0'
   },
   instructions: {
-    background: '#f5f5f5',
+    background: '#2d3748',
     padding: '20px',
     borderRadius: '10px',
     marginBottom: '20px',
@@ -284,14 +296,14 @@ const styles = {
   loading: {
     textAlign: 'center',
     padding: '20px',
-    backgroundColor: '#e7f3ff',
+    backgroundColor: '#3182ce',
     borderRadius: '10px',
     marginBottom: '20px'
   },
   successBox: {
     textAlign: 'center',
     padding: '20px',
-    backgroundColor: '#d4edda',
+    backgroundColor: '#38a169',
     borderRadius: '10px',
     marginBottom: '20px',
     maxWidth: '600px',
@@ -301,7 +313,7 @@ const styles = {
   errorBox: {
     textAlign: 'center',
     padding: '20px',
-    backgroundColor: '#f8d7da',
+    backgroundColor: '#e53e3e',
     borderRadius: '10px',
     marginBottom: '20px'
   },
@@ -309,7 +321,7 @@ const styles = {
     padding: '12px 24px',
     fontSize: '16px',
     fontWeight: 'bold',
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#38a169',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
@@ -319,7 +331,7 @@ const styles = {
     padding: '12px 24px',
     fontSize: '16px',
     fontWeight: 'bold',
-    backgroundColor: '#2196F3',
+    backgroundColor: '#3182ce',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
@@ -329,7 +341,7 @@ const styles = {
     padding: '8px 16px',
     fontSize: '14px',
     fontWeight: 'bold',
-    backgroundColor: '#ff9800',
+    backgroundColor: '#ed8936',
     color: 'white',
     border: 'none',
     borderRadius: '8px',

@@ -1,5 +1,52 @@
 # 📋 Changelog - Fooocus Inpainter React App
 
+## Version 1.1.0 (Server Configuration Update)
+
+**Release Date**: 2024  
+**Status**: Current Release with Enhanced Server Support
+
+### 🔧 Major Changes
+
+#### Environment Variable Support ✨ NEW
+- Added `.env` configuration file for server URL management
+- Created `.env.example` template for easy setup
+- Supports `FOCUS_SERVER_URL`, `API_ENDPOINT`, `TIMEOUT_MS`, `DEBUG_MODE`
+- Automatically loads environment variables from `.env` file
+
+#### Gradio/Fooocus API Support ✨ ENHANCED
+- Updated `fooocusApi.js` to support both v1 and Gradio API formats
+- Automatic detection of API response format (array, object, direct URL, base64)
+- Handles Gradio HTML responses with embedded images
+- Improved error handling for different server configurations
+
+#### Connection Flexibility ✨ IMPROVED
+- Default Focus server: `http://127.0.0.1:7865` (Gradio/Fooocus standard)
+- Can connect to remote Focus servers via environment variable
+- Better timeout handling (configurable up to 30 minutes)
+- Enhanced connection error messages with actionable fixes
+
+### 📝 Documentation Updates
+
+- Updated `README.md` with environment configuration instructions
+- Updated `CONTINUE.md` with Gradio API integration details
+- Updated `QUICK_START.md` with pre-flight checklist for server config
+- Added comprehensive troubleshooting guide for connection issues
+
+### Files Changed
+
+| File | Change Type | Description |
+|------|-------------|-------------|
+| `.env` | NEW | Environment configuration file |
+| `.env.example` | NEW | Template for environment variables |
+| `.gitignore` | MODIFIED | Added .env to gitignore |
+| `src/utils/fooocusApi.js` | REFACTORED | Added Gradio API support |
+| `README.md` | UPDATED | Documented server configuration |
+| `CONTINUE.md` | REWRITTEN | Updated with Gradio integration |
+| `QUICK_START.md` | UPDATED | Added pre-flight checklist |
+| `CHANGELOG.md` | UPDATED | This file |
+
+---
+
 ## Version 1.0.0 (Initial Release)
 
 **Release Date**: 2024  
@@ -132,15 +179,18 @@ react-fooocus-inpainter/
 
 **Normal operation**:
 ```
-Sending to Fooocus API...
+🎨 Sending to Fooocus API...
 Payload: {...}
-Fooocus generation successful!
-Result URL: ...
+✅ Success! Result URL: ...
 ```
 
 **Connection errors**:
 ```
-Failed to fetch from local Fooocus API: [error details]
+❌ API Error: Cannot connect to Fooocus API! 
+Make sure:
+1. Fooocus is running locally
+2. It is listening on port 8888
+3. No firewall is blocking the connection
 ```
 
 ### Sample User Flow (Documented)
@@ -188,7 +238,7 @@ Failed to fetch from local Fooocus API: [error details]
 | Quick Start | ✅ Complete | `QUICK_START.md` |
 | Changelog | ✅ This document | `CHANGELOG.md` |
 
-### Future Roadmap (v1.1+)
+### Future Roadmap (v1.2+)
 
 #### Planned Features for Next Release
 
@@ -226,12 +276,10 @@ Failed to fetch from local Fooocus API: [error details]
 **Author**: Generated with AI assistance  
 **Status**: Stable, production-ready
 
-### v1.1.0 (Planned)
-**Planned Date**: TBD  
-**Features**: See roadmap above
-
-### v2.0.0 (Future Vision)
-**Target**: Mobile app version + Cloud deployment
+### v1.1.0 - Server Configuration Update (CURRENT)
+**Date**: 2024  
+**Author**: Enhancement update  
+**Status**: Current with Gradio API support
 
 ---
 
@@ -278,10 +326,19 @@ Example commits:
 
 ## Migration Notes (For Future Versions)
 
-### From v1.0 to Future Versions
+### From v1.0 to v1.1 (Server Config Update)
+
+**Breaking Changes**: None  
+**Migration Steps**: None required - automatic detection of API format
+
+**New Features**:
+- Environment variable support via `.env` file
+- Gradio API response format handling
+- Improved error messages for connection issues
+
+### From v1.1 to Future Versions
 
 **Breaking Changes Expected**:
-- None in v1.1.x (API contract stable)
 - Possible in v2.0+ when adding model support
 
 **Migration Steps If Needed**:
@@ -290,7 +347,7 @@ Example commits:
 3. Check CONTINUE.md for migration guide
 4. Run `npm install` to get new dependencies
 5. Test with sample images
-6. Verify Fooocus compatibility
+6. Verify Focus compatibility
 
 ---
 
@@ -299,10 +356,11 @@ Example commits:
 **Development Server Start**: ~0.5 seconds (Vite hot reload)  
 **Image Upload (1MB)**: <50ms  
 **Mask Generation**: ~10-20ms (Canvas API)  
-**Fooocus API Call**: 10-60s (depends on image size/model)  
+**Focus API Call**: 10-60s (depends on image size/model)  
 **Build Time (full app)**: ~15-30 seconds
 
 ### Optimization Notes
+
 - Images over 5MB benefit from pre-processing/resizing
 - Large batch processing recommended for high-performance computers
 - Consider adding Web Worker for heavy operations in v2.0+
