@@ -96,6 +96,37 @@ npm install
 
 # Start development server with hot reload
 npm run dev
+```
+
+## 🔌 API Endpoint Configuration (IMPORTANT!)
+
+**The app now uses Gradio/Fooocus API format!**
+
+### Default Endpoints:
+
+- **Main generation**: `http://127.0.0.1:7865/api/predict/65`
+- **Fallback v1 endpoint**: `http://127.0.0.1:7865/generation/image-inpaint`
+
+The app automatically uses the Gradio API (fn_index=65) which returns gallery images properly.
+
+### Configure Custom Endpoints:
+
+Edit `src/utils/fooocusApi.js` or set via `.env`:
+
+```javascript
+// In src/utils/fooocusApi.js
+export let FOOOCUS_FN_INDEX = parseInt(getEnvValue('FOOOCUS_FN_INDEX', '65'), 10);
+```
+
+Or use environment variable in `.env`:
+```env
+FOCUS_SERVER_URL=http://your-server:7865
+API_ENDPOINT=generation/image-inpaint  # Optional fallback
+FOOOCUS_FN_INDEX=65                     # Main generation endpoint
+DEBUG_MODE=true                         # Enable detailed logs
+```
+
+See [API_ENDPOINT_FIX.md](./API_ENDPOINT_FIX.md) for complete details on the fix.
 
 # Build for production
 npm run build

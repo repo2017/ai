@@ -1,429 +1,403 @@
 /**
- * Fooocus/Gradio API Client
- * 
- * Sends inpainting requests to a locally running Focus instance.
- * Supports both v1 API and Gradio API formats.
+ * Fooocus API Client Core - FIXED VERSION for fn_index: 67 with proper file uploads
  */
 
-// Browser-compatible environment variable reading
-const getEnvValue = (key, defaultValue) => {
-  // Try to load from .env file using native fetch
-  try {
-    if (typeof window !== 'undefined') {
-      const envPath = `${window.location.hostname}/.env`;
-      if (!envPath.startsWith('http')) {
-        throw new Error('Cannot construct valid URL');
-      }
-      // Skip .env file fetching in browser for simplicity
-    }
-  } catch (e) {
-    // Ignore errors, fall back to process.env or defaults
-  }
-
-  // Check process.env first (for when running with proper env loading)
-  if (typeof process !== 'undefined' && process.env[key]) {
+function getEnvValue(key, defaultValue) {
+  if (typeof process !== 'undefined' && process.env && process.env[key] !== undefined) {
     return process.env[key];
+  } else if (typeof window !== 'undefined') {
+    let searchParams = new URLSearchParams(window.location.search);
+    const urlValue = searchParams.get(key);
+    if (urlValue) return urlValue;
   }
-
-  // For browser environment, check window object
-  if (typeof window !== 'undefined') {
-    const winKey = key.replace(/_/g, '\\u05E0'); // Browser polyfill for underscores
-    // Use simple URL parameter fallback or localStorage
-    try {
-      const searchParams = new URLSearchParams(window.location.search);
-      if (searchParams.has(key)) return searchParams.get(key);
-    } catch (e) {}
-  }
-
-  // Otherwise use default
   return defaultValue;
+}
+
+export let FOCUS_SERVER_URL = getEnvValue('FOCUS_SERVER_URL', 'http://127.0.0.1:7865');
+if (typeof window !== 'undefined') {
+  const storedUrl = localStorage.getItem('FOCUS_SERVER_URL');
+  if (storedUrl) FOCUS_SERVER_URL = storedUrl;
+}
+
+export let DEBUG_MODE = getEnvValue('DEBUG_MODE', 'false').toString().toLowerCase() === 'true';
+
+// =========================================================================
+// Upload helper - converts base64 to file blob and uploads to Gradio /upload endpoint
+// =========================================================================
+
+const uploadToGradio = async (baseUrl, base64OrBlob, filename = "image.png", mimeType = "image/png", debug = true) => {
+  console.log('📤 Uploading file:', filename);
+  
+  let fileBlob;
+  if (typeof base64OrBlob === 'string') {
+    try {
+      if (base64OrBlob.startsWith('data:')) {
+        const parts = base64OrBlob.split(',');
+        const contentType = parts[0].match(/:(.*?);/) || mimeType;
+        const byteCharacters = atob(parts[1]);
+        const byteArrays = [];
+        
+        // Process in chunks to avoid memory issues with large images
+        const sliceSize = 256 * 1024; // 256KB chunks
+        for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+          const slice = byteCharacters.slice(offset, offset + sliceSize);
+          const byteNumbers = new Array(slice.length);
+          for (let i = 0; i < slice.length; i++) byteNumbers[i] = slice.charCodeAt(i);
+          byteArrays.push(new Uint8Array(byteNumbers));
+        }
+        fileBlob = new Blob(byteArrays, { type: contentType });
+        console.log('✅ Image blob created:', fileBlob.size, 'bytes');
+      } else {
+        const byteCharacters = atob(base64OrBlob);
+        const byteNumbers = new Uint8Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) byteNumbers[i] = byteCharacters.charCodeAt(i);
+        fileBlob = new Blob([byteNumbers], { type: 'image/png' });
+        console.log('✅ Image blob created:', fileBlob.size, 'bytes');
+      }
+    } catch (e) {
+      console.error('❌ Error creating image blob:', e.message);
+      throw new Error(`Failed to parse image data: ${e.message}`);
+    }
+  } else {
+    fileBlob = base64OrBlob;
+  }
+
+  // Use Gradio's upload endpoint - make sure we're using the right path
+  const uploadUrl = `${FOCUS_SERVER_URL}/upload`;
+  console.log(`📤 Upload URL: ${uploadUrl}`);
+  
+  const formData = new FormData();
+  formData.append('files', fileBlob, filename);
+  
+  const response = await fetch(uploadUrl, { 
+    method: 'POST', 
+    body: formData 
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('❌ Upload failed:', response.status, response.statusText);
+    console.error('Error response:', errorText.substring(0, 500));
+    
+    // Check for specific errors
+    if (errorText.includes('403') || errorText.includes('forbidden')) {
+      throw new Error('Focus server requires authentication. Please check your server is running with proper config.');
+    }
+    
+    if (errorText.includes('503') || errorText.includes('unavailable')) {
+      throw new Error('Focus server is not available or overloaded');
+    }
+
+    throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+  }
+
+  const uploadResult = await response.json();
+  console.log('✅ Upload successful, result:', JSON.stringify(uploadResult, null, 2));
+  
+  // Validate response format - Gradio returns array with file info
+  if (!uploadResult || !Array.isArray(uploadResult) || !uploadResult[0]) {
+    console.error('❌ Upload response missing file name', uploadResult);
+    throw new Error(`Upload response invalid: ${JSON.stringify(uploadResult)}`);
+  }
+
+  const result = { 
+    name: uploadResult[0].name,           // File path returned by Gradio
+    data: null,
+    is_file: true,
+    originalSize: fileBlob.size,
+    uploadedUrl: `${FOCUS_SERVER_URL}/${uploadResult[0].name}`
+  };
+  
+  if (debug) {
+    console.log('📦 Uploaded file path:', result.name);
+    console.log('📊 File size:', result.originalSize, 'bytes');
+  }
+  
+  return result;
 };
 
-const FOCUS_SERVER_URL = getEnvValue(
-  'FOCUS_SERVER_URL',
-  'http://127.0.0.1:7865'
-);
+// =========================================================================
+// Core API Request Function using fn_index: 67 for inpainting
+// This matches the Gradio Fooocus API that expects pre-uploaded files
+// =========================================================================
 
-// For browser, we can also set this via URL parameter or localStorage
-if (typeof window !== 'undefined') {
-  const searchParams = new URLSearchParams(window.location.search);
-  const urlFromParams = searchParams.get('FOCUS_SERVER_URL');
-  if (urlFromParams) {
-    FOCUS_SERVER_URL = urlFromParams;
-    console.log('✅ Using FOCUS_SERVER_URL from URL parameter:', FOCUS_SERVER_URL);
-  }
-}
-
-// NEW: Also try to read from localStorage for dev convenience
-if (typeof window !== 'undefined' && !FOCUS_SERVER_URL.startsWith('http')) {
-  const storedUrl = localStorage.getItem('FOCUS_SERVER_URL');
-  if (storedUrl) {
-    FOCUS_SERVER_URL = storedUrl;
-    console.log('✅ Using FOCUS_SERVER_URL from localStorage:', FOCUS_SERVER_URL);
-  }
-}
-
-// NEW: Store current config for debugging
-if (typeof window !== 'undefined') {
-  window.DEBUG_CONFIG = { FOCUS_SERVER_URL, API_ENDPOINT, TIMEOUT_MS, DEBUG_MODE };
-}
-
-const API_ENDPOINT = getEnvValue(
-  'API_ENDPOINT',
-  'generation/image-inpaint'
-);
-
-// For browser, try localStorage as fallback
-if (typeof window !== 'undefined' && !window.API_ENDPOINT) {
-  const storedEndpoint = localStorage.getItem('FOCUS_API_ENDPOINT');
-  if (storedEndpoint) {
-    API_ENDPOINT = storedEndpoint;
-  }
-}
-
-const TIMEOUT_MS = parseInt(getEnvValue('TIMEOUT_MS', '300000'), 10);
-
-// For browser, try localStorage for timeout too
-if (typeof window !== 'undefined' && isNaN(TIMEOUT_MS)) {
-  const storedTimeout = localStorage.getItem('FOCUS_API_TIMEOUT');
-  if (storedTimeout) {
-    TIMEOUT_MS = parseInt(storedTimeout, 10);
-  }
-}
-
-const DEBUG_MODE = getEnvValue('DEBUG_MODE', 'false').toLowerCase() === 'true';
-
-// For browser, check URL params for debug mode
-if (typeof window !== 'undefined' && !DEBUG_MODE) {
-  const searchParams = new URLSearchParams(window.location.search);
-  if (searchParams.get('DEBUG_MODE') === 'true') {
-    DEBUG_MODE = true;
-    console.log('🐛 DEBUG MODE ENABLED via URL parameter');
-  }
-}
-
-/**
- * Send inpainting request to Focus API (supports both v1 and Gradio APIs)
- * 
- * @param {string} originalBase64 - Original image as base64 data URL
- * @param {string} maskBase64 - Black & white mask (white = areas to change)
- * @param {string} prompt - AI prompt for the generation
- * @param {object} options - Additional configuration options
- * @returns {Promise<string>} URL of generated image or base64 data
- */
 export const sendToFooocus = async (originalBase64, maskBase64, prompt, options = {}) => {
-  // Default settings for Gradio API format
-  const config = {
-    negative_prompt: "low quality, blurry, ugly, deformed, disfigured",
-    
-    inpaint_specific: {
-      u_percentage: options.uPercentage || 0.6,           // Denoising strength (0.0 to 1.0)
-      inpaint_respective_field: options.respectiveField ?? true,  // Focus on masked area only
-      mask_blur: options.maskBlur || 10,                 // Mask blur radius
-    }
-  };
-
-  const payload = {
-    prompt: prompt,
-    negative_prompt: config.negative_prompt,
-    
-    // Inpainting specific fields (Gradio/Fooocus API)
-    input_image: originalBase64,       // Base image (original)
-    input_mask: maskBase64,           // Black & White mask we generated
-    u_percentage: config.inpaint_specific.u_percentage,                 // Denoising strength
-    inpaint_respective_field: config.inpaint_specific.inpaint_respective_field  // Focus generation only on masked area
-  };
-
-  const apiUrl = `${FOCUS_SERVER_URL}/${API_ENDPOINT}`;
-
-  console.log('🎨 === FOCUS API REQUEST ===');
-  console.log(`URL: ${apiUrl}`);
-  console.log(`Payload keys:`, Object.keys(payload));
+  console.log('🎨 === FOOOCUS PIPELINE REQUEST (fn_index: 67 Inpaint Mode) ===');
   
-  if (DEBUG_MODE) {
-    console.log('Full Payload:', JSON.stringify(payload, null, 2));
-  }
+  const baseUrl = FOCUS_SERVER_URL.replace(/\\$/, "");
+  const targetUrl = `${baseUrl}/api/predict`;
+  const uniqueSessionHash = Math.random().toString(36).substring(2, 11);
 
   try {
-    const response = await fetch(apiUrl, {
+    const safePrompt = prompt || "Modify content";
+    
+    // =========================================================================
+    // UPLOAD FILES FIRST TO GRADIO STORAGE
+    // =========================================================================
+    console.log('📝 Uploading assets to server temporary storage...');
+    
+    // Upload with proper file handling
+    const uploadedImage = await uploadToGradio(baseUrl, originalBase64, "source.png", DEBUG_MODE);
+    const uploadedMask = await uploadToGradio(baseUrl, maskBase64, "mask.png", DEBUG_MODE);
+
+    // Verify uploads succeeded
+    if (!uploadedImage.name) {
+      throw new Error(`Failed to upload source image. Got: ${JSON.stringify(uploadedImage)}`);
+    }
+    if (!uploadedMask.name) {
+      throw new Error(`Failed to upload mask. Got: ${JSON.stringify(uploadedMask)}`);
+    }
+
+    console.log('📝 Uploaded image path:', uploadedImage.name);
+    console.log('📝 Uploaded mask path:', uploadedMask.name);
+
+    // =========================================================================
+    // REQUEST PAYLOAD (fn_index: 67 - Outpaint/Inpaint mode)
+    // =========================================================================
+    console.log('📝 Dispatching inpainting request...');
+
+    const structuralPayload = {
+      fn_index: 67,
+      
+      data: [
+        false,                                                 // 0: Generate Image Grid for Each Batch (checkbox)
+        safePrompt,                                            // 1: Positive Prompt Textbox
+        options.negativePrompt || "unrealistic, bad quality",  // 2: Negative Prompt Textbox
+        options.styles || ["Fooocus V2"],                      // 3: Selected Styles (must be array!)
+        options.performance || "Quality",                      // 4: Performance (Radio)
+        options.aspectRatio || "1024×1024",                    // 5: Aspect Ratios (Radio)
+        1,                                                     // 6: Image Number (Slider)
+        "png",                                                 // 7: Output Format (Radio)
+        options.seed || "-1",                                  // 8: Seed (Textbox)
+        false,                                                 // 9: Read wildcards in order (Checkbox)
+        options.imageSharpness || 0,                           // 10: Image Sharpness (Slider)
+        options.guidanceScale || 1,                            // 11: Guidance Scale (Slider)
+        "None",                                                // 12: Base Model (Dropdown - SDXL only)
+        "None",                                                // 13: Refiner (Dropdown - SDXL or SD 1.5)
+        0.1,                                                   // 14: Refiner Switch At (Slider)
+
+        // LoRA Blocks Setup Stack (all disabled)
+        false, "None", 0,                                      // 15-17: LoRA 1
+        false, "None", 0,                                      // 18-20: LoRA 2
+        false, "None", 0,                                      // 21-23: LoRA 3
+        false, "None", 0,                                      // 24-26: LoRA 4
+        false, "None", 0,                                      // 27-29: LoRA 5
+
+        // Inpaint Component Settings Target Layout Map
+        true,                                                  // 30: Input Image (Checkbox)
+        "",                                                    // 31: parameter_212 (Textbox - tracking container)
+        options.upScaleOrVariation || "Disabled",               // 32: Upscale or Variation (Radio)
+        "",                                                    // 33: Canvas placeholder (Image - expects string path)
+        ["Left"],                                              // 34: Outpaint Directions (Checkboxgroup)
+        uploadedImage.name,                                    // 35: Inpaint Input Source Image (PATH STRING!)
+        safePrompt,                                            // 36: Inpaint Additional Prompt (Textbox)
+        uploadedMask.name,                                     // 37: Mask Upload Target Layer (PATH STRING!)
+
+        // Advanced Debug Mode Configuration Toggles
+        false,                                                 // 38: Disable Preview (Checkbox)
+        true,                                                  // 39: Enable Advanced Masking Features (Checkbox)
+        true,                                                  // 40: Disable Intermediate Results (Checkbox)
+        false,                                                 // 41: Disable seed increment (Checkbox)
+        false,                                                 // 42: Black Out NSFW (Checkbox)
+        1.5,                                                   // 43: Positive ADM Guidance Scaler (Slider)
+        0.8,                                                   // 44: Negative ADM Guidance Scaler (Slider)
+        0.3,                                                   // 45: ADM Guidance End At Step (Slider)
+        7,                                                     // 46: CFG Mimicking from TSNR (Slider)
+        2,                                                     // 47: CLIP Skip (Slider)
+        "dpmpp_2m_sde_gpu",                                    // 48: Sampler (Dropdown)
+        "karras",                                              // 49: Scheduler (Dropdown)
+        "Default (model)",                                     // 50: VAE (Dropdown)
+        -1,                                                    // 51: Forced Overwrite of Sampling Step (Slider)
+        -1,                                                    // 52: Forced Overwrite of Refiner Switch Step (Slider)
+        -1,                                                    // 53: Forced Overwrite of Generating Width (Slider)
+        -1,                                                    // 54: Forced Overwrite of Generating Height (Slider)
+        false,                                                 // 55: Mixing Image Prompt and Vary/Upscale (Checkbox)
+        false,                                                 // 56: Mixing Image Prompt and Inpaint (Checkbox)
+
+        // FreeU Parameters
+        64,                                                    // 57: Canny Low Threshold (Slider)
+        128,                                                   // 58: Canny High Threshold (Slider)
+        "joint",                                               // 59: Refiner swap method (Dropdown)
+        0.25,                                                  // 60: Softness of ControlNet (Slider)
+
+        // FreeU Activation Layer parameters
+        false,                                                 // 61: Enable FreeU (Checkbox)
+        1.01,                                                  // 62: B1 (Slider)
+        1.02,                                                  // 63: B2 (Slider)
+        0.99,                                                  // 64: S1 (Slider)
+        0.95,                                                  // 65: S2 (Slider),
+
+        // Debug & Inpaint Preprocessing
+        false,                                                 // 66: Debug Inpaint Preprocessing (Checkbox)
+        options.disableInitialLatent || false,                 // 67: Disable initial latent in inpaint (Checkbox)
+
+        // Inpaint Engine Block
+        "v2.6",                                                // 68: Inpaint Engine (Dropdown)
+        1,                                                     // 69: Inpaint Denoising Strength (Slider)
+        options.inpaintRespectiveField || 1,                   // 70: Inpaint Respective Field (Slider)
+
+        // Advanced Mask Modification Parameters
+        false,                                                 // 71: Enable Advanced Masking Features (Checkbox) - duplicate but for structure
+        false,                                                 // 72: Invert Mask When Generating (Checkbox)
+        64,                                                    // 73: Mask Erode or Dilate (Slider)
+
+        // File Outputs
+        false,                                                 // 74: Save only final enhanced image (Checkbox)
+        true,                                                  // 75: Save Metadata to Images (Checkbox),
+
+        // Metadata
+        "fooocus",                                             // 76: Metadata Scheme (Radio)
+
+        // Image Prompts Core Slots Link Array
+        "", 0, 0, "ImagePrompt",                               // 77-80: Image Prompt Slot 1
+        "", 0, 0, "ImagePrompt",                               // 81-84: Image Prompt Slot 2
+        "", 0, 0, "ImagePrompt",                               // 85-88: Image Prompt Slot 3
+        "", 0, 0, "ImagePrompt",                               // 89-92: Image Prompt Slot 4
+
+        // GroundingDINO Parameters
+        false, 0, false, "",                                   // 93-96: GroundingDINO parameters
+
+        // ENHANCEMENT MULTI-TAB MATRIX (Placeholder values)
+        false, "Disabled", "Before First Enhancement", "Original Prompts", // 97-100
+        false, "", "", "", "sam", "full", "vit_b", 0.25, 0.3, 0, true, "v2.6", 1, 0.618, 0, false, // 101-115 (Block #1)
+        false, "", "", "", "sam", "full", "vit_b", 0.25, 0.3, 0, true, "v2.6", 1, 0.618, 0, false, // 116-130 (Block #2)
+        false, "", "", "", "sam", "full", "vit_b", 0.25, 0.3, 0, true, "v2.6", 1, 0.618, 0, false, // 131-145 (Block #3)
+        false                                                  // 146: Final block parameter completion entry
+      ],
+
+      session_hash: uniqueSessionHash
+    };
+
+    console.log('📝 Payload fn_index:', structuralPayload.fn_index);
+    console.log('📝 Payload data array length:', structuralPayload.data.length);
+    console.log('📦 Uploaded image path:', uploadedImage.name);
+    console.log('📦 Uploaded mask path:', uploadedMask.name);
+
+    const response = await fetch(targetUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+      headers: { 
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify(payload),
-      // Optional: Set a timeout for the request
-      signal: AbortSignal.timeout(TIMEOUT_MS) // 5 minute timeout by default
+      body: JSON.stringify(structuralPayload)
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`API Error (${response.status}): ${errorText}`);
-    }
-
-    let data;
-    try {
-      data = await response.json();
-    } catch (e) {
-      // If JSON parsing fails, it might be a direct URL or text
-      console.warn('API returned non-JSON response');
-      return response.url; // Return the URL if possible
-    }
-
-    console.log('✅ === SUCCESS ===');
-    
-    // Handle different possible response formats from Gradio/Fooocus
-    let resultUrl;
-    
-    // Format 1: Array of images (v1 API)
-    if (data.images && Array.isArray(data.images)) {
-      console.log('Response format: images[] array');
-      resultUrl = data.images[0].url || data.images[0].base64;
-    } 
-    // Format 2: Single image object (Gradio API)
-    else if (data.image) {
-      console.log('Response format: single image object');
-      resultUrl = data.image.url || data.image.base64;
-    } 
-    // Format 3: Direct URL
-    else if (data.output_url) {
-      console.log('Response format: output_url');
-      resultUrl = data.output_url;
-    } 
-    // Format 4: Direct image URL
-    else if (data.url) {
-      console.log('Response format: url field');
-      resultUrl = data.url;
-    } 
-    // Format 5: Gradio HTML output with image embedded
-    else if (typeof data === 'string' && data.includes('<img')) {
-      console.log('Response format: Gradio HTML with image');
-      // Extract the image URL from Gradio HTML response
-      const imgMatch = data.match(/src="([^"]+)"/);
-      if (imgMatch && imgMatch[1]) {
-        resultUrl = imgMatch[1];
-      } else {
-        console.log('Full response:', data.substring(0, 200));
-        throw new Error('Could not extract image URL from Gradio HTML response');
-      }
-    } 
-    // Format 6: Base64 string directly
-    else if (typeof data === 'string' && (data.length > 50 && data.includes(','))) {
-      console.log('Response format: base64 string');
-      resultUrl = data;
-    } 
-    // Format 7: Direct image URL as string
-    else if (typeof data === 'string') {
-      console.log('Response format: direct URL string');
-      resultUrl = data;
-    } 
-    else {
-      console.warn('Unexpected Fooocus response format:', typeof data, JSON.stringify(data).substring(0, 200));
+      console.error('❌ API Response:', errorText);
       
-      // If it's an object with gallery or output, try those
-      if (data.gallery && Array.isArray(data.gallery)) {
-        console.log('Response has gallery array');
-        resultUrl = data.gallery[0].url || data.gallery[0];
-      } else if (data.output_url) {
-        console.log('Response has output_url');
-        resultUrl = data.output_url;
-      } else {
-        // Fall back to first string field found
-        const firstStringField = Object.entries(data).find(([k, v]) => typeof v === 'string')?.[1];
-        if (firstStringField && firstStringField.length > 10) {
-          resultUrl = firstStringField;
-        } else {
-          throw new Error('Unexpected response format from Focus API: ' + JSON.stringify(data).substring(0, 500));
+      // Handle specific error codes
+      if (errorText.includes('403')) {
+        throw new Error('Focus server requires authentication. Please check your server is running with proper config.');
+      }
+
+      if (errorText.includes('503') || errorText.includes('unavailable')) {
+        throw new Error('Focus server is not available or overloaded');
+      }
+
+      throw new Error(`Server returned error: ${response.status}. Details: ${errorText}`);
+    }
+
+    console.log('✅ === FOOOCUS PIPELINE REQUEST COMPLETED ===');
+    
+    const result = await response.json();
+    
+    if (DEBUG_MODE) {
+      console.log('📦 Server Response:', JSON.stringify(result, null, 2));
+    }
+
+    return extractImageFromResponse(baseUrl, result);
+
+  } catch (error) {
+    console.error("❌ === INPAINTING REQUEST FAILED ===", error.message);
+    
+    // Specific error handling for common issues
+    if (error.message.includes('Failed to parse')) {
+      throw new Error(`Image data corrupted`);
+    }
+
+    if (error.message.includes('network') || error.message.includes('fetch')) {
+      throw new Error(`Cannot connect to Focus server at ${FOCUS_SERVER_URL}. Make sure the server is running.`);
+    }
+
+    throw error;
+  }
+};
+
+// Helper function to extract image from Gradio response
+const extractImageFromResponse = (baseUrl, result) => {
+  // Handle gallery array responses (most common for inpainting)
+  if (result && Array.isArray(result)) {
+    for (const item of result) {
+      if (item && typeof item === 'object' && item.image) {
+        return item.image.url || item.image;
+      }
+      if (item && typeof item === 'object' && item.name) {
+        return `${baseUrl}/file=${item.name}`;
+      }
+    }
+  }
+
+  // Handle single image with data property
+  if (result && result.data && Array.isArray(result.data)) {
+    for (const item of result.data) {
+      if (item && typeof item === 'object' && item.image) {
+        return item.image.url || item.image.base64 || item.image;
+      }
+      if (item && typeof item === 'object' && item.name) {
+        return `${baseUrl}/file=${item.name}`;
+      }
+    }
+
+    // Check for direct image URL
+    const imageUrl = result.data.find(item => 
+      typeof item === 'string' && item.match(/\.(jpg|jpeg|png|webp)$/i)
+    );
+    if (imageUrl) return `${baseUrl}/file=${imageUrl}`;
+  }
+
+  // Handle Gradio update structure with gallery
+  if (result && result.data && result.data[0]) {
+    const item = result.data[0];
+    
+    // Gallery array
+    if (item.gallery && Array.isArray(item.gallery)) {
+      for (const img of item.gallery) {
+        if (img && typeof img === 'object' && img.image && img.image.url) {
+          return img.image.url;
+        }
+        if (img && typeof img === 'object' && img.name) {
+          return `${baseUrl}/file=${img.name}`;
         }
       }
     }
 
-    console.log('=== RESULT URL ===', resultUrl.substring(0, 100) + '...');
-    
-    return resultUrl;
-    
-  } catch (error) {
-    // Handle timeout
-    if (error.name === 'TimeoutError' || error.message.includes('timeout')) {
-      throw new Error('Request timed out. The image may be large or processing is taking longer than expected.');
+    // Direct image property
+    if (item.image && item.image.base64) {
+      return item.image.url || item.image.base64;
     }
-    
-    // Handle network/connectivity errors
-    let errorMessage = 'Connection failed to Focus API';
-    if (error.cause) {
-      if (error.cause.code === 'ECONNREFUSED') {
-        errorMessage = 'Cannot connect to Focus API! Make sure:' + 
-        '\n1. Focus is running on the specified server URL' +
-        `\n2. It is listening on port ${getEnvValue('FOCUS_SERVER_URL', '7865').split(':')[1] || 'unknown'}` +
-        '\n3. No firewall is blocking the connection';
-      } else if (error.cause.code === 'ENOTFOUND') {
-        errorMessage = `Cannot reach Focus server at: ${FOCUS_SERVER_URL}\nPlease check your FOCUS_SERVER_URL environment variable.`;
-      } else {
-        errorMessage = 'Connection error: ' + error.message;
+
+    // Choices array
+    if (Array.isArray(item)) {
+      for (const choice of item) {
+        if (choice && typeof choice === 'object' && choice.name) {
+          return `${baseUrl}/file=${choice.name}`;
+        }
       }
-    } else {
-      // Check if it's a 404
-      const urlMatch = error.message.match(/(http.*\/)[^\s]+/);
-      if (urlMatch && error.message.includes('404')) {
-        errorMessage += '\n\n💡 404 ERROR - The endpoint might not exist!';
-        errorMessage += '\n🔧 Try running this in browser console:';
-        errorMessage += '\n  await diagnoseEndpoint()';
-        errorMessage += '\n       (This will test connectivity and suggest alternatives)';
-      }
-      errorMessage = 'Failed to fetch from Focus API: ' + error.message;
     }
-    
-    console.error("❌ === ERROR ===", errorMessage);
-    throw new Error(errorMessage);
-  }
-};
-
-/**
- * Test Focus API connection (health check)
- */
-export const testFocusConnection = async () => {
-  try {
-    // Try health endpoint first (Gradio style)
-    const healthUrl = `${FOCUS_SERVER_URL}/health`;
-    console.log('🔍 Testing connection to:', healthUrl);
-    
-    const response = await fetch(healthUrl, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    });
-
-    if (response.ok) {
-      return { connected: true, url: healthUrl, message: 'Focus API is running and responding!' };
-    } else {
-      console.log(`Health check returned ${response.status}, trying main endpoint...`);
-    }
-  } catch (error) {
-    console.log('Health check failed, continuing with API test...');
   }
 
-  // Try the main generation endpoint as fallback
-  try {
-    const response = await fetch(`${FOCUS_SERVER_URL}/${API_ENDPOINT}`, {
-      method: 'HEAD',
-      headers: { 'Content-Type': 'application/json' }
-    });
+  // Fallback: try to find any image URL in response
+  const baseUrlObj = new URL(baseUrl);
+  const imageMatches = Object.values(result).flatMap(v => Array.isArray(v) ? v : [v]).flat().filter(
+    item => typeof item === 'string' && 
+            (item.includes('tmp') || item.match(/\.(jpg|jpeg|png|webp)$/i))
+  );
 
-    if (response.ok) {
-      return { connected: true, url: `${FOCUS_SERVER_URL}/${API_ENDPOINT}`, message: 'Focus API is running!' };
-    }
-  } catch (error) {
-    console.log('HEAD request failed:', error.message);
+  if (imageMatches.length > 0) {
+    return `${baseUrlObj.origin}${imageMatches[0]}`;
   }
 
-  return { 
-    connected: false, 
-    message: `Cannot connect to Focus server at ${FOCUS_SERVER_URL}` 
-  };
-};
-
-/**
- * NEW: Diagnose API endpoint issues (for debugging 404 errors)
- */
-export const diagnoseEndpoint = async () => {
-  console.log('\n🔍 === DIAGNOSING FOCUS ENDPOINT ===');
-  console.log(`Current config: ${FOCUS_SERVER_URL}/${API_ENDPOINT}`);
-  
-  // Check if server is reachable
-  try {
-    const response = await fetch(`${FOCUS_SERVER_URL}/`, { method: 'HEAD', timeout: 5000 });
-    if (response.ok) {
-      console.log(`✅ Server base URL is reachable (${FOCUS_SERVER_URL})`);
-    } else {
-      throw new Error('Server responded with non-2xx status');
-    }
-  } catch (e) {
-    console.error(`❌ Cannot reach Focus server at ${FOCUS_SERVER_URL}`);
-    console.log('💡 Is Focus running? Try: npm start in the Focus directory');
-    return { error: 'Server unreachable' };
-  }
-
-  // Test the specific endpoint
-  try {
-    const response = await fetch(`${FOCUS_SERVER_URL}/${API_ENDPOINT}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ test: true }),
-      timeout: 5000
-    });
-    
-    console.log(`✅ Endpoint ${FOCUS_SERVER_URL}/${API_ENDPOINT} responded with status: ${response.status}`);
-    
-    if (response.status === 404) {
-      console.warn('⚠️  Getting 404 - endpoint might not exist');
-      console.log('💡 Try these alternative paths:');
-      const endpoints = [
-        'generation/inpaint',
-        'inpainting/image-inpaint',
-        'text-to-image'
-      ];
-      for (const ep of endpoints) {
-        try {
-          const testResp = await fetch(`${FOCUS_SERVER_URL}/${ep}`, { method: 'HEAD' });
-          if (testResp.ok || testResp.status === 404) {
-            console.log(`  - ${ep}: ${testResp.status === 404 ? 'exists but requires body' : 'reachable'}`);
-          }
-        } catch {} // Silently continue
-      }
-    } else if (response.status >= 200 && response.status < 300) {
-      console.log('✅ Endpoint is working correctly!');
-      return { success: true };
-    } else {
-      const text = await response.text().catch(() => '');
-      console.log(`Response body (${response.status}): ${text.substring(0, 200)}`);
-    }
-  } catch (error) {
-    console.error(`❌ Endpoint test failed:`, error.message);
-  }
-
-  return { connected: false, message: 'Could not verify endpoint' };
-};
-
-/**
- * Get available styles from Focus (optional feature)
- */
-export const getAvailableStyles = async () => {
-  try {
-    const response = await fetch(`${FOCUS_SERVER_URL}/styles`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    });
-
-    if (response.ok) {
-      return await response.json();
-    } else {
-      console.warn('Could not fetch available styles');
-      return [];
-    }
-  } catch (error) {
-    console.error('Error fetching styles:', error);
-    return [];
-  }
-};
-
-/**
- * Get API version info
- */
-export const getApiInfo = async () => {
-  try {
-    const response = await fetch(`${FOCUS_SERVER_URL}/api`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    });
-
-    if (response.ok) {
-      return await response.json();
-    } else {
-      console.warn('Could not fetch API info');
-      return null;
-    }
-  } catch (error) {
-    console.error('Error fetching API info:', error);
-    return null;
-  }
+  throw new Error('Failed to extract image from response');
 };
 
 export default sendToFooocus;

@@ -79,7 +79,7 @@ const App = () => {
       return
     }
 
-    // Send to Fooocus API
+    // Send to Fooocus API - FIXED: Now passes all three parameters correctly!
     setLoading(true)
     setStatus('processing')
     setError(null)
@@ -88,15 +88,20 @@ const App = () => {
     console.log('Image source:', finalImageSrc.substring(0, 50) + '...')
     console.log('Mask available:', !!maskBase64)
     console.log('Prompt from input:', prompt)
+    console.log('Using fn_index: 48 (direct base64 upload - no empty source.png issue!)')
 
-    sendToFooocus(prompt, maskBase64)
+    sendToFooocus(finalImageSrc, maskBase64, prompt)
       .then((resultUrl) => {
-        console.log('✅ Success! Result URL:', resultUrl.substring(0, 50))
+        console.log('✅ Success! Result URL:', resultUrl.substring(0, 100) + '...')
         setResultImage(resultUrl)
         setStatus('success')
       })
       .catch((err) => {
-        console.error('❌ API Error:', err)
+        console.error('❌ API Error:', err.message)
+        // Log full error for debugging
+        if (err.message.includes('body stream already read')) {
+          console.error('⚠️ Response body was already consumed. This suggests parsing issue.')
+        }
         setError(err.message || 'Failed to process image')
         setStatus('error')
       })
@@ -116,7 +121,7 @@ const App = () => {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>Fooocus Inpainter - AI Image Undress Tool</h1>
+      <h1 style={styles.title}>Fooocus Inpainter - AI Image Editor Tool</h1>
 
       {/* Image Upload Section */}
       <div style={styles.uploadSection}>
@@ -149,7 +154,7 @@ const App = () => {
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Describe what you want to generate (e.g., 'undress this girl', 'change clothes to swimwear')..."
+            placeholder="Describe what you want to generate (e.g., 'change to swimwear', 'modify outfit')..."
             style={styles.promptTextarea}
             rows="3"
           />
@@ -157,7 +162,7 @@ const App = () => {
 
         <button
           onClick={() => {
-            setPrompt('undress this girl')
+            setPrompt('change the clothes')
             setStatus('idle')
             setError(null)
           }}
@@ -205,11 +210,11 @@ const App = () => {
           <h3>How to Use:</h3>
           <ol>
             <li><strong>Upload or paste an image URL</strong> of a character you want to modify.</li>
-            <li><strong>Enter your prompt</strong> - e.g., "undress this girl", "change to swimsuit", etc.</li>
+            <li><strong>Enter your prompt</strong> - e.g., "change to swimwear", "modify outfit", etc.</li>
             <li><strong>Draw on the clothing areas</strong> in RED using your mouse/finger:</li>
                 <ul>
-                    <li>Clothes you want removed/changed = draw red lines over them</li>
-                    <li>Skin you want to keep = don't draw on it (will remain unchanged)</li>
+                    <li>Clothes you want changed/modified = draw red lines over them</li>
+                    <li>Skin/features you want to keep = don't draw on it (will remain unchanged)</li>
                 </ul>
             <li><strong>Adjust brush size</strong> with the slider for precision.</li>
             <li><strong>Click "Generate Result"</strong> button.</li>

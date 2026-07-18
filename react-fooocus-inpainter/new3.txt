@@ -1,0 +1,2241 @@
+continue the project... there are md files which you should read..
+now the project when I click Generate Result gives that error in console:
+=== SUCCESS ===
+fooocusApi.js:220 ❌ === ERROR === Fooocus pipeline execution failed: Unable to extract output image token. Raw response data structure: {"data":[{"__type__":"update"},{"visible":true,"__type__":"update"},{"visible":false,"__type__":"update"}],"is_generating":false,"duration":0,"average_duration":0.0003345012664794922}
+(anonymous) @ fooocusApi.js:220
+await in (anonymous)
+handleExport @ App.jsx:92
+handleExport @ InpaintCanvas.jsx:165
+callCallback2 @ chunk-LCVOUT7J.js?v=ab2c232a:3674
+invokeGuardedCallbackDev @ chunk-LCVOUT7J.js?v=ab2c232a:3699
+invokeGuardedCallback @ chunk-LCVOUT7J.js?v=ab2c232a:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-LCVOUT7J.js?v=ab2c232a:3736
+executeDispatch @ chunk-LCVOUT7J.js?v=ab2c232a:7014
+processDispatchQueueItemsInOrder @ chunk-LCVOUT7J.js?v=ab2c232a:7034
+processDispatchQueue @ chunk-LCVOUT7J.js?v=ab2c232a:7043
+dispatchEventsForPlugins @ chunk-LCVOUT7J.js?v=ab2c232a:7051
+(anonymous) @ chunk-LCVOUT7J.js?v=ab2c232a:7174
+batchedUpdates$1 @ chunk-LCVOUT7J.js?v=ab2c232a:18913
+batchedUpdates @ chunk-LCVOUT7J.js?v=ab2c232a:3579
+dispatchEventForPluginEventSystem @ chunk-LCVOUT7J.js?v=ab2c232a:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-LCVOUT7J.js?v=ab2c232a:5478
+dispatchEvent @ chunk-LCVOUT7J.js?v=ab2c232a:5472
+dispatchDiscreteEvent @ chunk-LCVOUT7J.js?v=ab2c232a:5449
+App.jsx:99 ❌ API Error: Error: Fooocus pipeline execution failed: Unable to extract output image token. Raw response data structure: {"data":[{"__type__":"update"},{"visible":true,"__type__":"update"},{"visible":false,"__type__":"update"}],"is_generating":false,"duration":0,"average_duration":0.0003345012664794922}
+    at sendToFooocus (fooocusApi.js:221:11)
+
+maybe you need the doc of focus server:
+this is it:
+
+
+
+Generate
+
+Input Image
+
+Enhance
+
+Advanced
+
+Use via API
+
+·
+
+Built with Gradio
+
+API documentation
+
+http://127.0.0.1:7865/
+
+77 API endpoints
+
+Use the gradio_client Python library or the @gradio/client Javascript package to query the demo via API.
+
+copy
+
+$ npm i -D @gradio/client
+
+Unnamed Endpoints
+
+fn_index: 0
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(0, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+fn_index: 1
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(1, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+fn_index: 2
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(2, [		
+				"ImagePrompt", // string  in 'Type' Radio component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# number representing output in 'Stop At' Slider component,
+
+# number representing output in 'Weight' Slider component,
+
+)
+
+fn_index: 3
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(3, [		
+				"ImagePrompt", // string  in 'Type' Radio component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# number representing output in 'Stop At' Slider component,
+
+# number representing output in 'Weight' Slider component,
+
+)
+
+fn_index: 4
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(4, [		
+				"ImagePrompt", // string  in 'Type' Radio component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# number representing output in 'Stop At' Slider component,
+
+# number representing output in 'Weight' Slider component,
+
+)
+
+fn_index: 5
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(5, [		
+				"ImagePrompt", // string  in 'Type' Radio component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# number representing output in 'Stop At' Slider component,
+
+# number representing output in 'Weight' Slider component,
+
+)
+
+fn_index: 6
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(6, [		
+				true, // boolean  in 'Advanced' Checkbox component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'Type' Radio component,
+
+# string representing output in 'Type' Radio component,
+
+# string representing output in 'Type' Radio component,
+
+# string representing output in 'Type' Radio component,
+
+# number representing output in 'Stop At' Slider component,
+
+# number representing output in 'Stop At' Slider component,
+
+# number representing output in 'Stop At' Slider component,
+
+# number representing output in 'Stop At' Slider component,
+
+# number representing output in 'Weight' Slider component,
+
+# number representing output in 'Weight' Slider component,
+
+# number representing output in 'Weight' Slider component,
+
+# number representing output in 'Weight' Slider component,
+
+)
+
+fn_index: 7
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(7, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'Inpaint Additional Prompt' Textbox component
+
+fn_index: 8
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(8, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'Detection prompt' Textbox component
+
+fn_index: 9
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(9, [		
+				"u2net", // string (Option from: ['u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime', 'sam']) in 'Mask generation model' Dropdown component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'Cloth category' Dropdown component,
+
+# string representing output in 'Detection prompt' Textbox component,
+
+)
+
+fn_index: 10
+
+copy
+
+import { client } from "@gradio/client";
+
+const response_0 = await fetch("https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png");
+const exampleImage = await response_0.blob();
+						
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(10, [
+				exampleImage, 	// blob in 'Image' Image component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'Image Size and Recommended Size' Textbox component
+
+fn_index: 11
+
+copy
+
+import { client } from "@gradio/client";
+
+const response_0 = await fetch("https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png");
+const exampleImage = await response_0.blob();
+						
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(11, [
+				exampleImage, 	// blob in 'For images created by Fooocus' Image component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# any representing output in 'Metadata' Json component
+
+fn_index: 12
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(12, [		
+				"Before First Enhancement", // string  in 'Order of Processing' Radio component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'Prompt' Radio component
+
+fn_index: 13
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(13, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'Detection prompt' Textbox component
+
+fn_index: 14
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(14, [		
+				"Inpaint or Outpaint (default)", // string (Option from: ['Inpaint or Outpaint (default)', 'Improve Detail (face, hand, eyes, etc.)', 'Modify Content (add objects, change background, etc.)']) in 'Method' Dropdown component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'Inpaint Additional Prompt' Textbox component,
+
+# string[] representing output in 'Outpaint Direction' Checkboxgroup component,
+
+# boolean representing output in 'Disable initial latent in inpaint' Checkbox component,
+
+# string representing output in 'Inpaint Engine' Dropdown component,
+
+# number representing output in 'Inpaint Denoising Strength' Slider component,
+
+# number representing output in 'Inpaint Respective Field' Slider component,
+
+)
+
+fn_index: 15
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(15, [		
+				"u2net", // string (Option from: ['u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime', 'sam']) in 'Mask generation model' Dropdown component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'Cloth category' Dropdown component,
+
+# string representing output in 'Detection prompt' Textbox component,
+
+)
+
+fn_index: 16
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(16, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'Detection prompt' Textbox component
+
+fn_index: 17
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(17, [		
+				"Inpaint or Outpaint (default)", // string (Option from: ['Inpaint or Outpaint (default)', 'Improve Detail (face, hand, eyes, etc.)', 'Modify Content (add objects, change background, etc.)']) in 'Method' Dropdown component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'Inpaint Additional Prompt' Textbox component,
+
+# string[] representing output in 'Outpaint Direction' Checkboxgroup component,
+
+# boolean representing output in 'Disable initial latent in inpaint' Checkbox component,
+
+# string representing output in 'Inpaint Engine' Dropdown component,
+
+# number representing output in 'Inpaint Denoising Strength' Slider component,
+
+# number representing output in 'Inpaint Respective Field' Slider component,
+
+)
+
+fn_index: 18
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(18, [		
+				"u2net", // string (Option from: ['u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime', 'sam']) in 'Mask generation model' Dropdown component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'Cloth category' Dropdown component,
+
+# string representing output in 'Detection prompt' Textbox component,
+
+)
+
+fn_index: 19
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(19, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'Detection prompt' Textbox component
+
+fn_index: 20
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(20, [		
+				"Inpaint or Outpaint (default)", // string (Option from: ['Inpaint or Outpaint (default)', 'Improve Detail (face, hand, eyes, etc.)', 'Modify Content (add objects, change background, etc.)']) in 'Method' Dropdown component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'Inpaint Additional Prompt' Textbox component,
+
+# string[] representing output in 'Outpaint Direction' Checkboxgroup component,
+
+# boolean representing output in 'Disable initial latent in inpaint' Checkbox component,
+
+# string representing output in 'Inpaint Engine' Dropdown component,
+
+# number representing output in 'Inpaint Denoising Strength' Slider component,
+
+# number representing output in 'Inpaint Respective Field' Slider component,
+
+)
+
+fn_index: 21
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(21, [		
+				"u2net", // string (Option from: ['u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime', 'sam']) in 'Mask generation model' Dropdown component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'Cloth category' Dropdown component,
+
+# string representing output in 'Detection prompt' Textbox component,
+
+)
+
+fn_index: 22
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(22, [		
+				true, // boolean  in 'Input Image' Checkbox component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+fn_index: 23
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(23, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+fn_index: 24
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(24, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'value_212' Textbox component
+
+fn_index: 25
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(25, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'value_212' Textbox component
+
+fn_index: 26
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(26, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'value_212' Textbox component
+
+fn_index: 27
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(27, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'value_212' Textbox component
+
+fn_index: 28
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(28, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'value_212' Textbox component
+
+fn_index: 29
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(29, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'value_212' Textbox component
+
+fn_index: 30
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(30, [		
+				true, // boolean  in 'Enhance' Checkbox component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+fn_index: 31
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(31, [		
+				"704×1408 <span style="color: grey;"> ∣ 1:2</span>", // string  in 'Aspect Ratios' Radio component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+fn_index: 32
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(32, [		
+				"704×1408 <span style="color: grey;"> ∣ 1:2</span>", // string  in 'Aspect Ratios' Radio component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+fn_index: 33
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(33, [		
+				true, // boolean  in 'Random' Checkbox component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'Seed' Textbox component
+
+fn_index: 34
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(34, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'value_226' Html component
+
+fn_index: 35
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(35, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string[] representing output in 'Selected Styles' Checkboxgroup component
+
+fn_index: 36
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(36, [		
+				["Fooocus V2"], // string[] (array of strings) in 'Selected Styles' Checkboxgroup component		
+				"Howdy!", // string  in 'Search Styles' Textbox component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string[] representing output in 'Selected Styles' Checkboxgroup component
+
+fn_index: 37
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(37, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+fn_index: 38
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(38, [		
+				["Fooocus V2"], // string[] (array of strings) in 'Selected Styles' Checkboxgroup component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string[] representing output in 'Selected Styles' Checkboxgroup component
+
+fn_index: 39
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(39, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+fn_index: 40
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(40, [		
+				"None", // string (Option from: ['None', 'juggernautXL_v8Rundiffusion.safetensors']) in 'Refiner (SDXL or SD 1.5)' Dropdown component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# number representing output in 'Refiner Switch At' Slider component
+
+fn_index: 41
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(41, [		
+				true, // boolean  in 'Black Out NSFW' Checkbox component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# boolean representing output in 'Disable Preview' Checkbox component
+
+fn_index: 42
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(42, [		
+				true, // boolean  in 'Save Metadata to Images' Checkbox component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'Metadata Scheme' Radio component
+
+fn_index: 43
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(43, [		
+				true, // boolean  in 'Enable Advanced Masking Features' Checkbox component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'Mask Upload' Image component
+
+fn_index: 44
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(44, [		
+				"#000000", // string  in 'Inpaint brush color' Colorpicker component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'Image' Image component
+
+fn_index: 45
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(45, [		
+				true, // boolean  in 'Developer Debug Mode' Checkbox component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+fn_index: 46
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(46, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'Base Model (SDXL only)' Dropdown component,
+
+# string representing output in 'Refiner (SDXL or SD 1.5)' Dropdown component,
+
+# string representing output in 'VAE' Dropdown component,
+
+# string representing output in 'Preset' Dropdown component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 1' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 2' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 3' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 4' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 5' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+)
+
+fn_index: 47
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(47, [		
+				"initial", // string (Option from: ['initial', 'anime', 'default', 'lcm', 'lightning', 'playground_v2.5', 'pony_v6', 'realistic', 'sai']) in 'Preset' Dropdown component		
+				"Inpaint or Outpaint (default)", // string (Option from: ['Inpaint or Outpaint (default)', 'Improve Detail (face, hand, eyes, etc.)', 'Modify Content (add objects, change background, etc.)']) in 'Method' Dropdown component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# boolean representing output in 'Advanced' Checkbox component,
+
+# number representing output in 'Image Number' Slider component,
+
+# string representing output in 'value_12' Textbox component,
+
+# string representing output in 'Negative Prompt' Textbox component,
+
+# string[] representing output in 'Selected Styles' Checkboxgroup component,
+
+# string representing output in 'Performance' Radio component,
+
+# number representing output in 'Forced Overwrite of Sampling Step' Slider component,
+
+# number representing output in 'Forced Overwrite of Refiner Switch Step' Slider component,
+
+# string representing output in 'Aspect Ratios' Radio component,
+
+# number representing output in 'Forced Overwrite of Generating Width' Slider component,
+
+# number representing output in 'Forced Overwrite of Generating Height' Slider component,
+
+# number representing output in 'Guidance Scale' Slider component,
+
+# number representing output in 'Image Sharpness' Slider component,
+
+# number representing output in 'Positive ADM Guidance Scaler' Slider component,
+
+# number representing output in 'Negative ADM Guidance Scaler' Slider component,
+
+# number representing output in 'ADM Guidance End At Step' Slider component,
+
+# string representing output in 'Refiner swap method' Dropdown component,
+
+# number representing output in 'CFG Mimicking from TSNR' Slider component,
+
+# number representing output in 'CLIP Skip' Slider component,
+
+# string representing output in 'Base Model (SDXL only)' Dropdown component,
+
+# string representing output in 'Refiner (SDXL or SD 1.5)' Dropdown component,
+
+# number representing output in 'Refiner Switch At' Slider component,
+
+# string representing output in 'Sampler' Dropdown component,
+
+# string representing output in 'Scheduler' Dropdown component,
+
+# string representing output in 'VAE' Dropdown component,
+
+# boolean representing output in 'Random' Checkbox component,
+
+# string representing output in 'Seed' Textbox component,
+
+# string representing output in 'Inpaint Engine' Dropdown component,
+
+# string representing output in 'Method' Dropdown component,
+
+# string representing output in 'Method' Dropdown component,
+
+# string representing output in 'Method' Dropdown component,
+
+# string representing output in 'Method' Dropdown component,
+
+# string representing output in 'value_15' Button component,
+
+# string representing output in 'value_17' Button component,
+
+# boolean representing output in 'Enabled' Checkbox component,
+
+# number representing output in 'B1' Slider component,
+
+# number representing output in 'B2' Slider component,
+
+# number representing output in 'S1' Slider component,
+
+# number representing output in 'S2' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 1' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 2' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 3' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 4' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 5' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+)
+
+fn_index: 48
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(48, [		
+				["Fooocus V2"], // string[] (array of strings) in 'Selected Styles' Checkboxgroup component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string[] representing output in 'Selected Styles' Checkboxgroup component
+
+fn_index: 49
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(49, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+fn_index: 50
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(50, [		
+				"Inpaint or Outpaint (default)", // string (Option from: ['Inpaint or Outpaint (default)', 'Improve Detail (face, hand, eyes, etc.)', 'Modify Content (add objects, change background, etc.)']) in 'Method' Dropdown component		
+				"Inpaint or Outpaint (default)", // string (Option from: ['Inpaint or Outpaint (default)', 'Improve Detail (face, hand, eyes, etc.)', 'Modify Content (add objects, change background, etc.)']) in 'Method' Dropdown component		
+				"Inpaint or Outpaint (default)", // string (Option from: ['Inpaint or Outpaint (default)', 'Improve Detail (face, hand, eyes, etc.)', 'Modify Content (add objects, change background, etc.)']) in 'Method' Dropdown component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'Inpaint Engine' Dropdown component,
+
+# string representing output in 'Inpaint Engine' Dropdown component,
+
+# string representing output in 'Inpaint Engine' Dropdown component,
+
+)
+
+fn_index: 51
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(51, [		
+				"Quality", // string  in 'Performance' Radio component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# number representing output in 'Guidance Scale' Slider component,
+
+# number representing output in 'Image Sharpness' Slider component,
+
+# number representing output in 'ADM Guidance End At Step' Slider component,
+
+# number representing output in 'Positive ADM Guidance Scaler' Slider component,
+
+# number representing output in 'Negative ADM Guidance Scaler' Slider component,
+
+# number representing output in 'Refiner Switch At' Slider component,
+
+# string representing output in 'Refiner (SDXL or SD 1.5)' Dropdown component,
+
+# string representing output in 'Sampler' Dropdown component,
+
+# string representing output in 'Scheduler' Dropdown component,
+
+# number representing output in 'CFG Mimicking from TSNR' Slider component,
+
+# string representing output in 'Refiner swap method' Dropdown component,
+
+# string representing output in 'Negative Prompt' Textbox component,
+
+# boolean representing output in 'Disable Intermediate Results' Checkbox component,
+
+)
+
+fn_index: 52
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(52, [		
+				"png", // string  in 'Output Format' Radio component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+fn_index: 53
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(53, [		
+				true, // boolean  in 'Advanced' Checkbox component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+fn_index: 54
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(54, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+fn_index: 55
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(55, [		
+				"Inpaint or Outpaint (default)", // string (Option from: ['Inpaint or Outpaint (default)', 'Improve Detail (face, hand, eyes, etc.)', 'Modify Content (add objects, change background, etc.)']) in 'Method' Dropdown component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'Inpaint Additional Prompt' Textbox component,
+
+# string[] representing output in 'Outpaint Direction' Checkboxgroup component,
+
+# boolean representing output in 'Disable initial latent in inpaint' Checkbox component,
+
+# string representing output in 'Inpaint Engine' Dropdown component,
+
+# number representing output in 'Inpaint Denoising Strength' Slider component,
+
+# number representing output in 'Inpaint Respective Field' Slider component,
+
+)
+
+fn_index: 56
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(56, [		
+				"Inpaint or Outpaint (default)", // string (Option from: ['Inpaint or Outpaint (default)', 'Improve Detail (face, hand, eyes, etc.)', 'Modify Content (add objects, change background, etc.)']) in 'Method' Dropdown component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'Inpaint Additional Prompt' Textbox component,
+
+# string[] representing output in 'Outpaint Direction' Checkboxgroup component,
+
+# boolean representing output in 'Disable initial latent in inpaint' Checkbox component,
+
+# string representing output in 'Inpaint Engine' Dropdown component,
+
+# number representing output in 'Inpaint Denoising Strength' Slider component,
+
+# number representing output in 'Inpaint Respective Field' Slider component,
+
+)
+
+fn_index: 57
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(57, [		
+				"Inpaint or Outpaint (default)", // string (Option from: ['Inpaint or Outpaint (default)', 'Improve Detail (face, hand, eyes, etc.)', 'Modify Content (add objects, change background, etc.)']) in 'Method' Dropdown component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'Inpaint Additional Prompt' Textbox component,
+
+# string[] representing output in 'Outpaint Direction' Checkboxgroup component,
+
+# boolean representing output in 'Disable initial latent in inpaint' Checkbox component,
+
+# string representing output in 'Inpaint Engine' Dropdown component,
+
+# number representing output in 'Inpaint Denoising Strength' Slider component,
+
+# number representing output in 'Inpaint Respective Field' Slider component,
+
+)
+
+fn_index: 58
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(58, [		
+				"Inpaint or Outpaint (default)", // string (Option from: ['Inpaint or Outpaint (default)', 'Improve Detail (face, hand, eyes, etc.)', 'Modify Content (add objects, change background, etc.)']) in 'Method' Dropdown component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'Inpaint Additional Prompt' Textbox component,
+
+# string[] representing output in 'Outpaint Direction' Checkboxgroup component,
+
+# boolean representing output in 'Disable initial latent in inpaint' Checkbox component,
+
+# string representing output in 'Inpaint Engine' Dropdown component,
+
+# number representing output in 'Inpaint Denoising Strength' Slider component,
+
+# number representing output in 'Inpaint Respective Field' Slider component,
+
+)
+
+fn_index: 59
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(59, [		
+				"Inpaint or Outpaint (default)", // string (Option from: ['Inpaint or Outpaint (default)', 'Improve Detail (face, hand, eyes, etc.)', 'Modify Content (add objects, change background, etc.)']) in 'Method' Dropdown component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'Inpaint Additional Prompt' Textbox component,
+
+# string[] representing output in 'Outpaint Direction' Checkboxgroup component,
+
+# boolean representing output in 'Disable initial latent in inpaint' Checkbox component,
+
+# string representing output in 'Inpaint Engine' Dropdown component,
+
+# number representing output in 'Inpaint Denoising Strength' Slider component,
+
+# number representing output in 'Inpaint Respective Field' Slider component,
+
+)
+
+fn_index: 60
+
+copy
+
+import { client } from "@gradio/client";
+
+const response_0 = await fetch("https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png");
+const exampleImage = await response_0.blob();
+						
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(60, [
+				exampleImage, 	// blob in 'Image' Image component		
+				"u2net", // string (Option from: ['u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime', 'sam']) in 'Mask generation model' Dropdown component		
+				"full", // string (Option from: ['full', 'upper', 'lower']) in 'Cloth category' Dropdown component		
+				"Howdy!", // string  in 'Detection prompt' Textbox component		
+				"vit_b", // string (Option from: ['vit_b', 'vit_l', 'vit_h']) in 'SAM model' Dropdown component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Box Threshold' Slider component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Text Threshold' Slider component		
+				0, // number (numeric value between 0 and 10) in 'Maximum number of detections' Slider component		
+				-64, // number (numeric value between -64 and 64) in 'GroundingDINO Box Erode or Dilate' Slider component		
+				true, // boolean  in 'Debug GroundingDINO' Checkbox component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'Mask Upload' Image component
+
+fn_index: 61
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(61, [		
+				"Howdy!", // string  in 'parameter_12' Textbox component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'value_12' Textbox component,
+
+# string representing output in 'value_15' Button component,
+
+# string representing output in 'value_17' Button component,
+
+)
+
+fn_index: 62
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(62, [		
+				"Howdy!", // string  in 'parameter_12' Textbox component		
+				"Inpaint or Outpaint (default)", // string (Option from: ['Inpaint or Outpaint (default)', 'Improve Detail (face, hand, eyes, etc.)', 'Modify Content (add objects, change background, etc.)']) in 'Method' Dropdown component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# boolean representing output in 'Advanced' Checkbox component,
+
+# number representing output in 'Image Number' Slider component,
+
+# string representing output in 'value_12' Textbox component,
+
+# string representing output in 'Negative Prompt' Textbox component,
+
+# string[] representing output in 'Selected Styles' Checkboxgroup component,
+
+# string representing output in 'Performance' Radio component,
+
+# number representing output in 'Forced Overwrite of Sampling Step' Slider component,
+
+# number representing output in 'Forced Overwrite of Refiner Switch Step' Slider component,
+
+# string representing output in 'Aspect Ratios' Radio component,
+
+# number representing output in 'Forced Overwrite of Generating Width' Slider component,
+
+# number representing output in 'Forced Overwrite of Generating Height' Slider component,
+
+# number representing output in 'Guidance Scale' Slider component,
+
+# number representing output in 'Image Sharpness' Slider component,
+
+# number representing output in 'Positive ADM Guidance Scaler' Slider component,
+
+# number representing output in 'Negative ADM Guidance Scaler' Slider component,
+
+# number representing output in 'ADM Guidance End At Step' Slider component,
+
+# string representing output in 'Refiner swap method' Dropdown component,
+
+# number representing output in 'CFG Mimicking from TSNR' Slider component,
+
+# number representing output in 'CLIP Skip' Slider component,
+
+# string representing output in 'Base Model (SDXL only)' Dropdown component,
+
+# string representing output in 'Refiner (SDXL or SD 1.5)' Dropdown component,
+
+# number representing output in 'Refiner Switch At' Slider component,
+
+# string representing output in 'Sampler' Dropdown component,
+
+# string representing output in 'Scheduler' Dropdown component,
+
+# string representing output in 'VAE' Dropdown component,
+
+# boolean representing output in 'Random' Checkbox component,
+
+# string representing output in 'Seed' Textbox component,
+
+# string representing output in 'Inpaint Engine' Dropdown component,
+
+# string representing output in 'Method' Dropdown component,
+
+# string representing output in 'Method' Dropdown component,
+
+# string representing output in 'Method' Dropdown component,
+
+# string representing output in 'Method' Dropdown component,
+
+# string representing output in 'value_15' Button component,
+
+# string representing output in 'value_17' Button component,
+
+# boolean representing output in 'Enabled' Checkbox component,
+
+# number representing output in 'B1' Slider component,
+
+# number representing output in 'B2' Slider component,
+
+# number representing output in 'S1' Slider component,
+
+# number representing output in 'S2' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 1' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 2' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 3' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 4' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 5' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+)
+
+fn_index: 63
+
+copy
+
+import { client } from "@gradio/client";
+
+const response_0 = await fetch("https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png");
+const exampleImage = await response_0.blob();
+						
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(63, [
+				exampleImage, 	// blob in 'For images created by Fooocus' Image component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# boolean representing output in 'Advanced' Checkbox component,
+
+# number representing output in 'Image Number' Slider component,
+
+# string representing output in 'value_12' Textbox component,
+
+# string representing output in 'Negative Prompt' Textbox component,
+
+# string[] representing output in 'Selected Styles' Checkboxgroup component,
+
+# string representing output in 'Performance' Radio component,
+
+# number representing output in 'Forced Overwrite of Sampling Step' Slider component,
+
+# number representing output in 'Forced Overwrite of Refiner Switch Step' Slider component,
+
+# string representing output in 'Aspect Ratios' Radio component,
+
+# number representing output in 'Forced Overwrite of Generating Width' Slider component,
+
+# number representing output in 'Forced Overwrite of Generating Height' Slider component,
+
+# number representing output in 'Guidance Scale' Slider component,
+
+# number representing output in 'Image Sharpness' Slider component,
+
+# number representing output in 'Positive ADM Guidance Scaler' Slider component,
+
+# number representing output in 'Negative ADM Guidance Scaler' Slider component,
+
+# number representing output in 'ADM Guidance End At Step' Slider component,
+
+# string representing output in 'Refiner swap method' Dropdown component,
+
+# number representing output in 'CFG Mimicking from TSNR' Slider component,
+
+# number representing output in 'CLIP Skip' Slider component,
+
+# string representing output in 'Base Model (SDXL only)' Dropdown component,
+
+# string representing output in 'Refiner (SDXL or SD 1.5)' Dropdown component,
+
+# number representing output in 'Refiner Switch At' Slider component,
+
+# string representing output in 'Sampler' Dropdown component,
+
+# string representing output in 'Scheduler' Dropdown component,
+
+# string representing output in 'VAE' Dropdown component,
+
+# boolean representing output in 'Random' Checkbox component,
+
+# string representing output in 'Seed' Textbox component,
+
+# string representing output in 'Inpaint Engine' Dropdown component,
+
+# string representing output in 'Method' Dropdown component,
+
+# string representing output in 'Method' Dropdown component,
+
+# string representing output in 'Method' Dropdown component,
+
+# string representing output in 'Method' Dropdown component,
+
+# string representing output in 'value_15' Button component,
+
+# string representing output in 'value_17' Button component,
+
+# boolean representing output in 'Enabled' Checkbox component,
+
+# number representing output in 'B1' Slider component,
+
+# number representing output in 'B2' Slider component,
+
+# number representing output in 'S1' Slider component,
+
+# number representing output in 'S2' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 1' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 2' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 3' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 4' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+# boolean representing output in 'Enable' Checkbox component,
+
+# string representing output in 'LoRA 5' Dropdown component,
+
+# number representing output in 'Weight' Slider component,
+
+)
+
+fn_index: 64
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(64, [		
+				["Fooocus V2"], // string[] (array of strings) in 'Selected Styles' Checkboxgroup component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string[] representing output in 'Selected Styles' Checkboxgroup component
+
+fn_index: 65
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(65, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'value_19' Button component,
+
+# string representing output in 'value_18' Button component,
+
+# string representing output in 'value_15' Button component,
+
+# [{ name: string; data: string; size?: number; is_file?: boolean; orig_name?: string}, (string | null))][] representing output in 'Gallery' Gallery component,
+
+)
+
+fn_index: 66
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(66, [		
+				true, // boolean  in 'Random' Checkbox component		
+				"Howdy!", // string  in 'Seed' Textbox component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'Seed' Textbox component
+
+fn_index: 67
+
+copy
+
+import { client } from "@gradio/client";
+
+const response_0 = await fetch("https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png");
+const exampleImage = await response_0.blob();
+						
+const response_1 = await fetch("https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png");
+const exampleImage = await response_1.blob();
+						
+const response_2 = await fetch("https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png");
+const exampleImage = await response_2.blob();
+						
+const response_3 = await fetch("https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png");
+const exampleImage = await response_3.blob();
+						
+const response_4 = await fetch("https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png");
+const exampleImage = await response_4.blob();
+						
+const response_5 = await fetch("https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png");
+const exampleImage = await response_5.blob();
+						
+const response_6 = await fetch("https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png");
+const exampleImage = await response_6.blob();
+						
+const response_7 = await fetch("https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png");
+const exampleImage = await response_7.blob();
+						
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(67, [		
+				true, // boolean  in 'Generate Image Grid for Each Batch' Checkbox component		
+				"Howdy!", // string  in 'parameter_12' Textbox component		
+				"Howdy!", // string  in 'Negative Prompt' Textbox component		
+				["Fooocus V2"], // string[] (array of strings) in 'Selected Styles' Checkboxgroup component		
+				"Quality", // string  in 'Performance' Radio component		
+				"704×1408 <span style="color: grey;"> ∣ 1:2</span>", // string  in 'Aspect Ratios' Radio component		
+				1, // number (numeric value between 1 and 32) in 'Image Number' Slider component		
+				"png", // string  in 'Output Format' Radio component		
+				"Howdy!", // string  in 'Seed' Textbox component		
+				true, // boolean  in 'Read wildcards in order' Checkbox component		
+				0, // number (numeric value between 0.0 and 30.0) in 'Image Sharpness' Slider component		
+				1, // number (numeric value between 1.0 and 30.0) in 'Guidance Scale' Slider component		
+				"juggernautXL_v8Rundiffusion.safetensors", // string (Option from: ['juggernautXL_v8Rundiffusion.safetensors']) in 'Base Model (SDXL only)' Dropdown component		
+				"None", // string (Option from: ['None', 'juggernautXL_v8Rundiffusion.safetensors']) in 'Refiner (SDXL or SD 1.5)' Dropdown component		
+				0.1, // number (numeric value between 0.1 and 1.0) in 'Refiner Switch At' Slider component		
+				true, // boolean  in 'Enable' Checkbox component		
+				"None", // string (Option from: ['None', 'sd_xl_offset_example-lora_1.0.safetensors', 'sdxl_lcm_lora.safetensors']) in 'LoRA 1' Dropdown component		
+				-2, // number (numeric value between -2 and 2) in 'Weight' Slider component		
+				true, // boolean  in 'Enable' Checkbox component		
+				"None", // string (Option from: ['None', 'sd_xl_offset_example-lora_1.0.safetensors', 'sdxl_lcm_lora.safetensors']) in 'LoRA 2' Dropdown component		
+				-2, // number (numeric value between -2 and 2) in 'Weight' Slider component		
+				true, // boolean  in 'Enable' Checkbox component		
+				"None", // string (Option from: ['None', 'sd_xl_offset_example-lora_1.0.safetensors', 'sdxl_lcm_lora.safetensors']) in 'LoRA 3' Dropdown component		
+				-2, // number (numeric value between -2 and 2) in 'Weight' Slider component		
+				true, // boolean  in 'Enable' Checkbox component		
+				"None", // string (Option from: ['None', 'sd_xl_offset_example-lora_1.0.safetensors', 'sdxl_lcm_lora.safetensors']) in 'LoRA 4' Dropdown component		
+				-2, // number (numeric value between -2 and 2) in 'Weight' Slider component		
+				true, // boolean  in 'Enable' Checkbox component		
+				"None", // string (Option from: ['None', 'sd_xl_offset_example-lora_1.0.safetensors', 'sdxl_lcm_lora.safetensors']) in 'LoRA 5' Dropdown component		
+				-2, // number (numeric value between -2 and 2) in 'Weight' Slider component		
+				true, // boolean  in 'Input Image' Checkbox component		
+				"Howdy!", // string  in 'parameter_212' Textbox component		
+				"Disabled", // string  in 'Upscale or Variation:' Radio component
+				exampleImage, 	// blob in 'Image' Image component		
+				["Left"], // string[] (array of strings) in 'Outpaint Direction' Checkboxgroup component
+				exampleImage, 	// blob in 'Image' Image component		
+				"Howdy!", // string  in 'Inpaint Additional Prompt' Textbox component
+				exampleImage, 	// blob in 'Mask Upload' Image component		
+				true, // boolean  in 'Disable Preview' Checkbox component		
+				true, // boolean  in 'Disable Intermediate Results' Checkbox component		
+				true, // boolean  in 'Disable seed increment' Checkbox component		
+				true, // boolean  in 'Black Out NSFW' Checkbox component		
+				0.1, // number (numeric value between 0.1 and 3.0) in 'Positive ADM Guidance Scaler' Slider component		
+				0.1, // number (numeric value between 0.1 and 3.0) in 'Negative ADM Guidance Scaler' Slider component		
+				0, // number (numeric value between 0.0 and 1.0) in 'ADM Guidance End At Step' Slider component		
+				1, // number (numeric value between 1.0 and 30.0) in 'CFG Mimicking from TSNR' Slider component		
+				1, // number (numeric value between 1 and 12) in 'CLIP Skip' Slider component		
+				"euler", // string (Option from: ['euler', 'euler_ancestral', 'heun', 'heunpp2', 'dpm_2', 'dpm_2_ancestral', 'lms', 'dpm_fast', 'dpm_adaptive', 'dpmpp_2s_ancestral', 'dpmpp_sde', 'dpmpp_sde_gpu', 'dpmpp_2m', 'dpmpp_2m_sde', 'dpmpp_2m_sde_gpu', 'dpmpp_3m_sde', 'dpmpp_3m_sde_gpu', 'ddpm', 'lcm', 'tcd', 'restart', 'ddim', 'uni_pc', 'uni_pc_bh2']) in 'Sampler' Dropdown component		
+				"normal", // string (Option from: ['normal', 'karras', 'exponential', 'sgm_uniform', 'simple', 'ddim_uniform', 'lcm', 'turbo', 'align_your_steps', 'tcd', 'edm_playground_v2.5']) in 'Scheduler' Dropdown component		
+				"Default (model)", // string (Option from: ['Default (model)']) in 'VAE' Dropdown component		
+				-1, // number (numeric value between -1 and 200) in 'Forced Overwrite of Sampling Step' Slider component		
+				-1, // number (numeric value between -1 and 200) in 'Forced Overwrite of Refiner Switch Step' Slider component		
+				-1, // number (numeric value between -1 and 2048) in 'Forced Overwrite of Generating Width' Slider component		
+				-1, // number (numeric value between -1 and 2048) in 'Forced Overwrite of Generating Height' Slider component		
+				-1, // number (numeric value between -1 and 1.0) in 'Forced Overwrite of Denoising Strength of "Vary"' Slider component		
+				-1, // number (numeric value between -1 and 1.0) in 'Forced Overwrite of Denoising Strength of "Upscale"' Slider component		
+				true, // boolean  in 'Mixing Image Prompt and Vary/Upscale' Checkbox component		
+				true, // boolean  in 'Mixing Image Prompt and Inpaint' Checkbox component		
+				true, // boolean  in 'Debug Preprocessors' Checkbox component		
+				true, // boolean  in 'Skip Preprocessors' Checkbox component		
+				1, // number (numeric value between 1 and 255) in 'Canny Low Threshold' Slider component		
+				1, // number (numeric value between 1 and 255) in 'Canny High Threshold' Slider component		
+				"joint", // string (Option from: ['joint', 'separate', 'vae']) in 'Refiner swap method' Dropdown component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Softness of ControlNet' Slider component		
+				true, // boolean  in 'Enabled' Checkbox component		
+				0, // number (numeric value between 0 and 2) in 'B1' Slider component		
+				0, // number (numeric value between 0 and 2) in 'B2' Slider component		
+				0, // number (numeric value between 0 and 4) in 'S1' Slider component		
+				0, // number (numeric value between 0 and 4) in 'S2' Slider component		
+				true, // boolean  in 'Debug Inpaint Preprocessing' Checkbox component		
+				true, // boolean  in 'Disable initial latent in inpaint' Checkbox component		
+				"None", // string (Option from: ['None', 'v1', 'v2.5', 'v2.6']) in 'Inpaint Engine' Dropdown component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Inpaint Denoising Strength' Slider component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Inpaint Respective Field' Slider component		
+				true, // boolean  in 'Enable Advanced Masking Features' Checkbox component		
+				true, // boolean  in 'Invert Mask When Generating' Checkbox component		
+				-64, // number (numeric value between -64 and 64) in 'Mask Erode or Dilate' Slider component		
+				true, // boolean  in 'Save only final enhanced image' Checkbox component		
+				true, // boolean  in 'Save Metadata to Images' Checkbox component		
+				"fooocus", // string  in 'Metadata Scheme' Radio component
+				exampleImage, 	// blob in 'Image' Image component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Stop At' Slider component		
+				0, // number (numeric value between 0.0 and 2.0) in 'Weight' Slider component		
+				"ImagePrompt", // string  in 'Type' Radio component
+				exampleImage, 	// blob in 'Image' Image component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Stop At' Slider component		
+				0, // number (numeric value between 0.0 and 2.0) in 'Weight' Slider component		
+				"ImagePrompt", // string  in 'Type' Radio component
+				exampleImage, 	// blob in 'Image' Image component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Stop At' Slider component		
+				0, // number (numeric value between 0.0 and 2.0) in 'Weight' Slider component		
+				"ImagePrompt", // string  in 'Type' Radio component
+				exampleImage, 	// blob in 'Image' Image component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Stop At' Slider component		
+				0, // number (numeric value between 0.0 and 2.0) in 'Weight' Slider component		
+				"ImagePrompt", // string  in 'Type' Radio component		
+				true, // boolean  in 'Debug GroundingDINO' Checkbox component		
+				-64, // number (numeric value between -64 and 64) in 'GroundingDINO Box Erode or Dilate' Slider component		
+				true, // boolean  in 'Debug Enhance Masks' Checkbox component
+				exampleImage, 	// blob in 'Use with Enhance, skips image generation' Image component		
+				true, // boolean  in 'Enhance' Checkbox component		
+				"Disabled", // string  in 'Upscale or Variation:' Radio component		
+				"Before First Enhancement", // string  in 'Order of Processing' Radio component		
+				"Original Prompts", // string  in 'Prompt' Radio component		
+				true, // boolean  in 'Enable' Checkbox component		
+				"Howdy!", // string  in 'Detection prompt' Textbox component		
+				"Howdy!", // string  in 'Enhancement positive prompt' Textbox component		
+				"Howdy!", // string  in 'Enhancement negative prompt' Textbox component		
+				"u2net", // string (Option from: ['u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime', 'sam']) in 'Mask generation model' Dropdown component		
+				"full", // string (Option from: ['full', 'upper', 'lower']) in 'Cloth category' Dropdown component		
+				"vit_b", // string (Option from: ['vit_b', 'vit_l', 'vit_h']) in 'SAM model' Dropdown component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Text Threshold' Slider component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Box Threshold' Slider component		
+				0, // number (numeric value between 0 and 10) in 'Maximum number of detections' Slider component		
+				true, // boolean  in 'Disable initial latent in inpaint' Checkbox component		
+				"None", // string (Option from: ['None', 'v1', 'v2.5', 'v2.6']) in 'Inpaint Engine' Dropdown component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Inpaint Denoising Strength' Slider component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Inpaint Respective Field' Slider component		
+				-64, // number (numeric value between -64 and 64) in 'Mask Erode or Dilate' Slider component		
+				true, // boolean  in 'Invert Mask' Checkbox component		
+				true, // boolean  in 'Enable' Checkbox component		
+				"Howdy!", // string  in 'Detection prompt' Textbox component		
+				"Howdy!", // string  in 'Enhancement positive prompt' Textbox component		
+				"Howdy!", // string  in 'Enhancement negative prompt' Textbox component		
+				"u2net", // string (Option from: ['u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime', 'sam']) in 'Mask generation model' Dropdown component		
+				"full", // string (Option from: ['full', 'upper', 'lower']) in 'Cloth category' Dropdown component		
+				"vit_b", // string (Option from: ['vit_b', 'vit_l', 'vit_h']) in 'SAM model' Dropdown component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Text Threshold' Slider component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Box Threshold' Slider component		
+				0, // number (numeric value between 0 and 10) in 'Maximum number of detections' Slider component		
+				true, // boolean  in 'Disable initial latent in inpaint' Checkbox component		
+				"None", // string (Option from: ['None', 'v1', 'v2.5', 'v2.6']) in 'Inpaint Engine' Dropdown component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Inpaint Denoising Strength' Slider component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Inpaint Respective Field' Slider component		
+				-64, // number (numeric value between -64 and 64) in 'Mask Erode or Dilate' Slider component		
+				true, // boolean  in 'Invert Mask' Checkbox component		
+				true, // boolean  in 'Enable' Checkbox component		
+				"Howdy!", // string  in 'Detection prompt' Textbox component		
+				"Howdy!", // string  in 'Enhancement positive prompt' Textbox component		
+				"Howdy!", // string  in 'Enhancement negative prompt' Textbox component		
+				"u2net", // string (Option from: ['u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime', 'sam']) in 'Mask generation model' Dropdown component		
+				"full", // string (Option from: ['full', 'upper', 'lower']) in 'Cloth category' Dropdown component		
+				"vit_b", // string (Option from: ['vit_b', 'vit_l', 'vit_h']) in 'SAM model' Dropdown component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Text Threshold' Slider component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Box Threshold' Slider component		
+				0, // number (numeric value between 0 and 10) in 'Maximum number of detections' Slider component		
+				true, // boolean  in 'Disable initial latent in inpaint' Checkbox component		
+				"None", // string (Option from: ['None', 'v1', 'v2.5', 'v2.6']) in 'Inpaint Engine' Dropdown component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Inpaint Denoising Strength' Slider component		
+				0, // number (numeric value between 0.0 and 1.0) in 'Inpaint Respective Field' Slider component		
+				-64, // number (numeric value between -64 and 64) in 'Mask Erode or Dilate' Slider component		
+				true, // boolean  in 'Invert Mask' Checkbox component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+fn_index: 68
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(68, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'value_8' Html component,
+
+# string representing output in 'Preview' Image component,
+
+# [{ name: string; data: string; size?: number; is_file?: boolean; orig_name?: string}, (string | null))][] representing output in 'Finished Images' Gallery component,
+
+# [{ name: string; data: string; size?: number; is_file?: boolean; orig_name?: string}, (string | null))][] representing output in 'Gallery' Gallery component,
+
+)
+
+fn_index: 69
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(69, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'value_15' Button component,
+
+# string representing output in 'value_19' Button component,
+
+# string representing output in 'value_18' Button component,
+
+)
+
+fn_index: 70
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(70, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string representing output in 'value_226' Html component
+
+fn_index: 71
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(71, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+fn_index: 72
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(72, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+fn_index: 73
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(73, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'value_15' Button component,
+
+# string representing output in 'value_16' Button component,
+
+# string representing output in 'value_19' Button component,
+
+# string representing output in 'value_18' Button component,
+
+# string representing output in 'value_8' Html component,
+
+# string representing output in 'Preview' Image component,
+
+# [{ name: string; data: string; size?: number; is_file?: boolean; orig_name?: string}, (string | null))][] representing output in 'Finished Images' Gallery component,
+
+# [{ name: string; data: string; size?: number; is_file?: boolean; orig_name?: string}, (string | null))][] representing output in 'Gallery' Gallery component,
+
+)
+
+fn_index: 74
+
+copy
+
+import { client } from "@gradio/client";
+
+const response_0 = await fetch("https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png");
+const exampleImage = await response_0.blob();
+						
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(74, [		
+				["Photograph"], // string[] (array of strings) in 'Content Type' Checkboxgroup component
+				exampleImage, 	// blob in 'Image' Image component		
+				true, // boolean  in 'Apply Styles' Checkbox component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+(
+
+# string representing output in 'value_12' Textbox component,
+
+# string[] representing output in 'Selected Styles' Checkboxgroup component,
+
+)
+
+fn_index: 75
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(75, [		
+				["Fooocus V2"], // string[] (array of strings) in 'Selected Styles' Checkboxgroup component
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+# string[] representing output in 'Selected Styles' Checkboxgroup component
+
+fn_index: 76
+
+copy
+
+import { client } from "@gradio/client";
+
+const app = await client("http://127.0.0.1:7865/");
+const result = await app.predict(76, [
+	]);
+
+console.log(result.data);
+
+
+Return Type(s)
+
+
+------------------------------------------------
