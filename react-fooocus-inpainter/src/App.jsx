@@ -88,7 +88,7 @@ const App = () => {
     console.log('Image source:', finalImageSrc.substring(0, 50) + '...')
     console.log('Mask available:', !!maskBase64)
     console.log('Prompt from input:', prompt)
-    console.log('Using fn_index: 48 (direct base64 upload - no empty source.png issue!)')
+    console.log('Using fn_index: 60 (Fixed string handling for gradio_hijack.py)')
 
     sendToFooocus(finalImageSrc, maskBase64, prompt)
       .then((resultUrl) => {

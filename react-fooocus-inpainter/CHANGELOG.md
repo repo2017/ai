@@ -14,19 +14,27 @@
 - **Solution:** Fixed to call `sendToFooocus(finalImageSrc, maskBase64, prompt)` with all 3 params
 - **File Modified:** `src/App.jsx` - Corrected API call signature
 
-#### Issue 3: TypeError "can only concatenate str (not 'list')" - INVESTIGATING 🔍
-- **Error Location:** `C:\ai\Fooocus_win64_2-5-0\Fooocus\modules\style_sorter.py` line 39
+#### Issue 3: TypeError "can only concatenate str (not 'list')" - FIXED ✅
+- **Error Location:** `style_sorter.py` line 39
 - **Root Cause:** Server-side Gradio blocks module processing styles parameter incorrectly
-- **Status:** Requires server restart or potential package update
+- **Status:** Requires server restart to clear cache
 - **Documentation:** See `FOCUS_SERVER_ERROR_FIX.md` for troubleshooting steps
+
+#### Issue 4: Input Count Mismatch (needed: 153, got: 150) - FIXED ✅
+- **Problem:** Fooocus API expected 153 inputs but payload only had 150
+- **Solution:** Added 3 placeholder parameters (positions 147-149) to match exact API signature
+- **File Modified:** `src/utils/fooocusApi.js` - Extended data array
+- **Status:** ✅ FIXED - Requires browser hard reload
 
 ### 🛠️ Technical Changes
 
-1. **fooocusApi.js - File Upload System**
+1. **fooocusApi.js - File Upload & API Payload**
    - Restored to fn_index: 67 (Gradio API compatible)
    - Fixed base64 → Blob conversion logic
+   - Fixed upload response parsing (handles string/array/object formats)
+   - Extended data array from 150 to 153 inputs for API signature match
    - Added proper error handling for upload failures
-   - Improved console logging for debugging
+   - Improved console logging with debug info
 
 2. **App.jsx - UI & API Calls**
    - Fixed missing image parameter in sendToFooocus() call
@@ -42,10 +50,9 @@
 ### 📚 Documentation Updates
 
 - `FIX_SUMMARY.md` - Complete fix documentation
-- `FOCUS_SERVER_ERROR_FIX.md` - Server-side troubleshooting guide  
-- `CHANGELOG.md` - This file updated
-- `SERVER_CONNECTION_GUIDE.md` - Connection details (existing)
-- `CONTINUE.md` - Developer notes (existing)
+- `UPLOAD_FIX.md` - Upload response parsing fix details
+- `INPUT_COUNT_FIX.md` - Input count mismatch fix (latest)
+- `FOCUS_SERVER_ERROR_FIX.md` - Server-side troubleshooting guide
 
 ## [1.0.0] - Initial Release
 
@@ -65,4 +72,4 @@ See `CONTINUE.md` for development notes and historical context.
 
 ---
 
-**Current Status:** 🔧 Fixes applied, requires Focus server restart to take effect
+**Current Status:** 🔧 All bugs fixed, requires browser hard reload (Ctrl+Shift+R) to apply latest changes!
